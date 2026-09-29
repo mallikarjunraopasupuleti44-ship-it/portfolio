@@ -1268,56 +1268,15 @@
             width: 100%;
             max-height: calc(100vh - 175px);
             aspect-ratio: 16 / 9;
-            border-radius: 18px;
-            box-shadow:
-                0 20px 60px rgba(0, 0, 0, 0.8),
-                0 0 45px rgba(56, 189, 248, 0.3),
-                inset 0 0 0 1px rgba(130, 185, 255, 0.4);
-            background: #020617;
+            background: transparent;
+            border: none;
+            box-shadow: none;
             transform-style: preserve-3d;
-            transition: box-shadow 0.4s ease;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .universe-pic-frame:hover {
-            box-shadow:
-                0 25px 70px rgba(0, 0, 0, 0.85),
-                0 0 55px rgba(56, 189, 248, 0.45),
-                inset 0 0 0 1.5px rgba(130, 185, 255, 0.6);
-        }
-
-        /* ── Drifting Cosmic Nebula Layer ── */
-        .universe-nebula-layer {
-            position: absolute;
-            inset: -15%;
-            width: 130%;
-            height: 130%;
-            background:
-                radial-gradient(ellipse at 25% 35%, rgba(14, 116, 144, 0.28) 0%, transparent 55%),
-                radial-gradient(ellipse at 75% 65%, rgba(126, 34, 206, 0.22) 0%, transparent 55%),
-                radial-gradient(ellipse at 50% 50%, rgba(3, 105, 161, 0.16) 0%, transparent 60%);
-            mix-blend-mode: screen;
-            pointer-events: none;
-            z-index: 1;
-            animation: nebulaDrift 45s ease-in-out infinite alternate;
-        }
-
-        @keyframes nebulaDrift {
-            0% { transform: translate(0%, 0%) scale(1); }
-            50% { transform: translate(-3%, 2%) scale(1.03); }
-            100% { transform: translate(2%, -3%) scale(0.98); }
-        }
-
-        /* ── Twinkling Ambient Starfield Canvas ── */
-        .universe-star-canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            mix-blend-mode: screen;
-            z-index: 2;
-            opacity: 0.85;
+            box-shadow: none;
         }
 
         /* ── Orbit Stage (3D Coordinate System) ── */
@@ -1833,7 +1792,6 @@
         /* ── Responsive Universe ── */
         @media (max-width: 991px) {
             .universe-section { padding: 65px 14px 14px; }
-            .universe-pic-frame { border-radius: 14px; }
             .central-planet { width: 92px; height: 92px; }
             .asteroid-mesh { width: 38px; height: 38px; }
             .asteroid-label { font-size: 0.52rem; padding: 2px 6px; }
@@ -1844,7 +1802,6 @@
 
         @media (max-width: 640px) {
             .universe-section { padding: 60px 10px 10px; }
-            .universe-pic-frame { border-radius: 12px; }
             .central-planet { width: 78px; height: 78px; }
             .planet-corona-outer { inset: -20px; }
             .planet-atmosphere-halo { inset: -8px; }
@@ -1862,7 +1819,6 @@
             .planet-img,
             .planet-light-sweep,
             .orbit-energy-pulse,
-            .universe-nebula-layer,
             .icon-neural-pulse,
             .icon-glow-pulse,
             .icon-network-pulse,

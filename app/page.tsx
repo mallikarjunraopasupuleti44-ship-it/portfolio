@@ -482,7 +482,6 @@ export default function Home() {
         const container = document.getElementById('universePicContainer');
         const frame = document.getElementById('universePicFrame');
         const stage = document.getElementById('orbitStage');
-        const canvas = document.getElementById('universeStarCanvas') as HTMLCanvasElement | null;
         const centralPlanet = document.getElementById('centralPlanet');
         const connectLine = document.getElementById('coreConnectLine');
         const connectParticle = document.getElementById('coreConnectParticle');
@@ -494,56 +493,7 @@ export default function Home() {
 
         const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // ── 1. Star Canvas Setup & Subtle Twinkling Loop ──
-        let starCtx: CanvasRenderingContext2D | null = null;
-        let starW = 0;
-        let starH = 0;
-        let stars: Array<{
-            x: number;
-            y: number;
-            r: number;
-            baseAlpha: number;
-            pulseSpeed: number;
-            pulsePhase: number;
-            speedX: number;
-            speedY: number;
-            color: string;
-        }> = [];
-
-        const initStarCanvas = () => {
-            if (!canvas) return;
-            starCtx = canvas.getContext('2d');
-            const rect = canvas.getBoundingClientRect();
-            starW = rect.width || 800;
-            starH = rect.height || 450;
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            canvas.width = starW * dpr;
-            canvas.height = starH * dpr;
-            if (starCtx) starCtx.scale(dpr, dpr);
-
-            stars = [];
-            const colors = ['rgba(255, 255, 255,', 'rgba(56, 189, 248,', 'rgba(192, 132, 252,', 'rgba(147, 197, 253,'];
-            for (let i = 0; i < 55; i++) {
-                stars.push({
-                    x: Math.random() * starW,
-                    y: Math.random() * starH,
-                    r: 0.6 + Math.random() * 1.3,
-                    baseAlpha: 0.2 + Math.random() * 0.55,
-                    pulseSpeed: 0.015 + Math.random() * 0.03,
-                    pulsePhase: Math.random() * Math.PI * 2,
-                    speedX: (Math.random() - 0.5) * 0.08,
-                    speedY: (Math.random() - 0.5) * 0.08,
-                    color: colors[Math.floor(Math.random() * colors.length)]
-                });
-            }
-        };
-
-        if (canvas) {
-            initStarCanvas();
-            window.addEventListener('resize', initStarCanvas);
-        }
-
-        // ── 2. Asteroids Data & Orbital Mechanics ──
+        // ── Asteroids Data & Orbital Mechanics ──
         interface AsteroidItem {
             el: HTMLElement;
             mesh: HTMLElement | null;
@@ -737,27 +687,6 @@ export default function Home() {
             const dt = Math.min((time - lastTime) / 1000, 0.1); // in seconds
             lastTime = time;
 
-            // Render Stars
-            if (starCtx && stars.length > 0) {
-                starCtx.clearRect(0, 0, starW, starH);
-                for (let i = 0; i < stars.length; i++) {
-                    const s = stars[i];
-                    s.pulsePhase += s.pulseSpeed;
-                    s.x += s.speedX;
-                    s.y += s.speedY;
-                    if (s.x < 0) s.x = starW;
-                    if (s.x > starW) s.x = 0;
-                    if (s.y < 0) s.y = starH;
-                    if (s.y > starH) s.y = 0;
-
-                    const alpha = Math.max(0.1, Math.min(1, s.baseAlpha + Math.sin(s.pulsePhase) * 0.28));
-                    starCtx.beginPath();
-                    starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-                    starCtx.fillStyle = s.color + alpha.toFixed(3) + ')';
-                    starCtx.fill();
-                }
-            }
-
             // Render Asteroids
             const currentScaleFactor = getScale();
 
@@ -918,27 +847,7 @@ export default function Home() {
             );
         }
 
-        // Scroll Parallax
-        gsap.to('.universe-nebula-layer', {
-            y: 25,
-            ease: "none",
-            scrollTrigger: {
-                trigger: "#skills",
-                start: "top bottom",
-                end: "bottom top",
-                scrub: 1.2
-            }
-        });
-        gsap.to('#universeStarCanvas', {
-            y: 18,
-            ease: "none",
-            scrollTrigger: {
-                trigger: "#skills",
-                start: "top bottom",
-                end: "bottom top",
-                scrub: 0.8
-            }
-        });
+        // Scroll Parallax on Orbit Stage
         gsap.to(stage, {
             y: 10,
             ease: "none",
@@ -952,7 +861,6 @@ export default function Home() {
 
         return () => {
             cancelAnimationFrame(animFrameId);
-            if (canvas) window.removeEventListener('resize', initStarCanvas);
             document.removeEventListener('click', handleDocClick);
             container.removeEventListener('mousemove', handleMouseMove);
             container.removeEventListener('mouseleave', handleMouseLeave);
@@ -1173,13 +1081,9 @@ export default function Home() {
                 </p>
             </div>
 
-            <!-- Universe Viewport Frame (Living Animated Solar System) -->
+            <!-- Universe Viewport (Merged into original page background) -->
             <div class="universe-pic-container" id="universePicContainer">
                 <div class="universe-pic-frame" id="universePicFrame">
-                    <!-- Background Layers: Drifting Nebula + Star Canvas -->
-                    <div class="universe-nebula-layer" id="universeNebula"></div>
-                    <canvas class="universe-star-canvas" id="universeStarCanvas" aria-hidden="true"></canvas>
-
                     <!-- Orbit Stage (3D Coordinate Space centered at 0,0) -->
                     <div class="orbit-stage" id="orbitStage">
                         <!-- SVG Tracks & Connection Lines -->
