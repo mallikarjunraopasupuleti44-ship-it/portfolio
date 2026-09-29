@@ -1190,4 +1190,441 @@
                 gap: 20px;
             }
         }
+
+        /* ================================================================
+           MY TECHNICAL UNIVERSE (INTERACTIVE SOLAR SYSTEM SKILLS)
+           ================================================================ */
+        .universe-section {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            padding: 100px clamp(16px, 4vw, 50px) 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .universe-header {
+            text-align: center;
+            max-width: 760px;
+            margin: 0 auto 1.5rem;
+            z-index: 25;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .universe-title {
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            margin: 0.75rem 0 0.4rem;
+            background: linear-gradient(135deg, #ffffff 30%, #93c5fd 65%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 35px rgba(56, 189, 248, 0.25);
+        }
+
+        .universe-subtitle {
+            font-size: clamp(0.9rem, 1.8vw, 1.12rem);
+            color: rgba(200, 225, 255, 0.75);
+            margin: 0;
+            letter-spacing: 0.01em;
+            font-weight: 400;
+        }
+
+        .universe-viewport {
+            position: relative;
+            width: 100%;
+            max-width: 1100px;
+            height: 720px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+            user-select: none;
+        }
+
+        .universe-particle-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.65;
+            mix-blend-mode: screen;
+            z-index: 1;
+        }
+
+        .orbit-stage {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-style: preserve-3d;
+            z-index: 2;
+            transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+
+        .orbit-tracks-svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 2;
+        }
+
+        .orbit-track {
+            fill: none;
+            stroke-dasharray: 4 6;
+            stroke-width: 1.2;
+            opacity: 0.45;
+            transition: stroke 0.4s ease, opacity 0.4s ease, stroke-width 0.4s ease, filter 0.4s ease;
+        }
+
+        .orbit-track.track-inner {
+            stroke: url(#orbitGlowInner);
+        }
+
+        .orbit-track.track-middle {
+            stroke: url(#orbitGlowMid);
+        }
+
+        .orbit-track.track-outer {
+            stroke: url(#orbitGlowOuter);
+        }
+
+        .orbit-track.highlighted {
+            stroke: #38bdf8 !important;
+            opacity: 0.95 !important;
+            stroke-width: 2.2 !important;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.85));
+            stroke-dasharray: none;
+        }
+
+        /* ── Central Planet ── */
+        .central-planet {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: transform 0.4s ease;
+        }
+
+        .planet-atmosphere-halo {
+            position: absolute;
+            inset: -28px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.28) 0%, rgba(168, 85, 247, 0.16) 45%, transparent 72%);
+            filter: blur(14px);
+            pointer-events: none;
+            animation: planetAtmosphere 6s ease-in-out infinite alternate;
+        }
+
+        @keyframes planetAtmosphere {
+            0% { transform: scale(0.96); opacity: 0.7; }
+            100% { transform: scale(1.08); opacity: 1; }
+        }
+
+        .planet-sphere {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            background: radial-gradient(circle at 35% 32%, #2563eb 0%, #1d4ed8 25%, #172554 55%, #090d1a 85%, #020617 100%);
+            box-shadow:
+                inset -14px -14px 30px rgba(0, 0, 0, 0.9),
+                inset 8px 8px 18px rgba(191, 219, 254, 0.45),
+                0 0 40px rgba(56, 189, 248, 0.35),
+                0 0 80px rgba(147, 51, 234, 0.2);
+            border: 1px solid rgba(147, 197, 253, 0.3);
+        }
+
+        .planet-specular {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 40%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .planet-texture-glow {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 40% 40%, rgba(125, 211, 252, 0.25) 0%, transparent 60%);
+            border-radius: 50%;
+            animation: planetSheen 7s ease-in-out infinite alternate;
+        }
+
+        @keyframes planetSheen {
+            0% { transform: translateX(-4px) translateY(-3px) scale(0.95); opacity: 0.6; }
+            100% { transform: translateX(5px) translateY(4px) scale(1.05); opacity: 1; }
+        }
+
+        .planet-core-label {
+            position: absolute;
+            top: calc(100% + 14px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            padding: 6px 14px;
+            background: rgba(10, 18, 48, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(130, 185, 255, 0.38);
+            border-radius: 999px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(56, 189, 248, 0.2);
+            pointer-events: none;
+        }
+
+        .core-tag {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #38bdf8;
+            letter-spacing: 0.15em;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .core-tech {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.08em;
+            display: block;
+            margin-top: 1px;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        /* ── Orbiting Skill Asteroids ── */
+        .skill-asteroid {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            will-change: transform, opacity;
+            z-index: 10;
+            pointer-events: auto;
+            touch-action: manipulation;
+            outline: none;
+        }
+
+        .asteroid-mesh {
+            width: 52px;
+            height: 52px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1), filter 0.3s ease;
+        }
+
+        .asteroid-facet {
+            position: absolute;
+            inset: 0;
+            clip-path: polygon(50% 0%, 93% 25%, 100% 70%, 75% 100%, 25% 100%, 0% 70%, 7% 25%);
+            background: linear-gradient(135deg, rgba(30, 48, 88, 0.88) 0%, rgba(12, 18, 42, 0.96) 100%);
+            border: 1px solid rgba(147, 197, 253, 0.4);
+            box-shadow:
+                0 0 16px rgba(56, 189, 248, 0.35),
+                inset 0 0 12px rgba(168, 85, 247, 0.25);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+
+        .asteroid-glow-ring {
+            position: absolute;
+            inset: -9px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(56, 189, 248, 0.85);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.7), inset 0 0 10px rgba(168, 85, 247, 0.4);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+
+        .asteroid-core-light {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8;
+            animation: corePulse 2s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes corePulse {
+            0%, 100% { opacity: 0.6; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .asteroid-icon-wrap {
+            position: relative;
+            z-index: 2;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e0f2fe;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.65));
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .asteroid-label {
+            margin-top: 8px;
+            padding: 3px 9px;
+            background: rgba(10, 18, 48, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(147, 197, 253, 0.35);
+            border-radius: 12px;
+            font-size: 0.64rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #e2e8f0;
+            white-space: nowrap;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+            transition: border-color 0.3s, color 0.3s, box-shadow 0.3s, background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .label-bracket {
+            color: #38bdf8;
+            font-weight: 700;
+            opacity: 0.7;
+        }
+
+        /* ── Asteroid Hover & Active States ── */
+        .skill-asteroid:hover,
+        .skill-asteroid.active {
+            z-index: 120 !important;
+        }
+
+        .skill-asteroid:hover .asteroid-glow-ring,
+        .skill-asteroid.active .asteroid-glow-ring {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .skill-asteroid:hover .asteroid-facet,
+        .skill-asteroid.active .asteroid-facet {
+            border-color: rgba(56, 189, 248, 0.8);
+            box-shadow:
+                0 0 25px rgba(56, 189, 248, 0.65),
+                inset 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        .skill-asteroid:hover .asteroid-label,
+        .skill-asteroid.active .asteroid-label {
+            border-color: rgba(56, 189, 248, 0.7);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.45);
+            background: rgba(14, 25, 65, 0.95);
+        }
+
+        /* ── Asteroid Tooltip Popup ── */
+        .asteroid-tooltip {
+            position: absolute;
+            bottom: calc(100% + 14px);
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            width: 220px;
+            padding: 10px 14px;
+            background: rgba(10, 18, 48, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(130, 185, 255, 0.45);
+            border-radius: 14px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.3);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.28s cubic-bezier(0.2, 1, 0.3, 1), transform 0.28s cubic-bezier(0.2, 1, 0.3, 1);
+            z-index: 150;
+            text-align: left;
+        }
+
+        .asteroid-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: rgba(130, 185, 255, 0.45) transparent transparent transparent;
+        }
+
+        .skill-asteroid:hover .asteroid-tooltip,
+        .skill-asteroid.active .asteroid-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        .tooltip-title {
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 4px;
+            letter-spacing: 0.04em;
+        }
+
+        .tooltip-desc {
+            font-size: 0.68rem;
+            line-height: 1.4;
+            color: rgba(226, 232, 240, 0.92);
+        }
+
+        /* ── Responsive Universe ── */
+        @media (max-width: 991px) {
+            .universe-viewport { height: 620px; }
+            .central-planet { width: 105px; height: 105px; }
+            .asteroid-mesh { width: 46px; height: 46px; }
+            .asteroid-icon-wrap { width: 20px; height: 20px; }
+            .asteroid-label { font-size: 0.60rem; padding: 2px 7px; }
+        }
+
+        @media (max-width: 640px) {
+            .universe-section { padding: 75px 15px 90px; }
+            .universe-viewport { height: 520px; }
+            .central-planet { width: 85px; height: 85px; }
+            .planet-atmosphere-halo { inset: -18px; }
+            .asteroid-mesh { width: 38px; height: 38px; }
+            .asteroid-icon-wrap { width: 18px; height: 18px; }
+            .asteroid-label { font-size: 0.54rem; padding: 2px 6px; margin-top: 5px; }
+            .asteroid-tooltip { width: 185px; padding: 8px 11px; }
+            .tooltip-title { font-size: 0.70rem; }
+            .tooltip-desc { font-size: 0.62rem; }
+        }
     
