@@ -724,11 +724,11 @@
                         radial-gradient(ellipse at 65% 50%, rgba(80, 200, 255, 0.25) 0%, transparent 55%);
         }
 
-        /* ── Speech / Thought interface panel — positioned North-West of the robot without overlap ── */
+        /* ── Speech / Thought interface panel — positioned North-West of the robot ── */
         #speech-panel {
             position: absolute;
-            bottom: 52%;
-            right: calc(100% + 18px); /* Positioned North-West without overlapping the robot */
+            bottom: calc(100% + 18px); /* North: floats above the robot head */
+            right: 42%; /* West: shifted left, creating true 45° North-West orientation */
             top: auto;
             left: auto;
             transform: translate(6px, -6px);
@@ -784,14 +784,14 @@
         .thought-dot.dot-lg {
             width: 10px;
             height: 10px;
-            bottom: -5px;
-            right: -10px;
+            bottom: -9px;
+            right: 18px;
         }
         .thought-dot.dot-sm {
             width: 6px;
             height: 6px;
-            bottom: -14px;
-            right: -20px;
+            bottom: -18px;
+            right: 6px;
         }
 
         /* Luminous top accent */
@@ -878,39 +878,39 @@
             #robot-flyer { left: 50%; }
             #robot-body, #robot-img { width: 105px; }
             #speech-panel {
-                right: calc(100% + 12px);
-                bottom: 50%;
+                bottom: calc(100% + 14px);
+                right: 32%;
                 max-width: 190px;
                 font-size: 0.72rem;
                 padding: 9px 13px;
             }
             .thought-dot.dot-lg {
-                bottom: -5px;
-                right: -8px;
+                bottom: -8px;
+                right: 14px;
             }
             .thought-dot.dot-sm {
-                bottom: -13px;
-                right: -16px;
+                bottom: -16px;
+                right: 4px;
             }
         }
         @media (max-width: 480px) {
             #robot-body, #robot-img { width: 85px; }
             #speech-panel { 
-                right: calc(100% + 8px);
-                bottom: 48%;
+                right: 22%;
+                bottom: calc(100% + 12px);
                 max-width: 160px;
                 font-size: 0.68rem;
                 padding: 7px 10px;
             }
             .thought-dot.dot-lg {
                 width: 8px; height: 8px;
-                bottom: -4px;
-                right: -6px;
+                bottom: -7px;
+                right: 12px;
             }
             .thought-dot.dot-sm {
                 width: 5px; height: 5px;
-                bottom: -11px;
-                right: -12px;
+                bottom: -14px;
+                right: 3px;
             }
             #skip-intro { top: 20px; right: 20px; padding: 6px 14px; font-size: 0.55rem; }
         }
