@@ -293,11 +293,11 @@ export default function Home() {
                     }
 
                     // Dynamic speech panel content
-                    if (self.progress >= 0.48) {
+                    if (self.progress >= 0.36) {
                         if (speechText && speechText.textContent !== "Ask me anything about Mallikarjuna Rao") {
                             speechText.textContent = "Ask me anything about Mallikarjuna Rao";
                         }
-                    } else if (self.progress <= 0.08) {
+                    } else if (self.progress <= 0.05) {
                         if (speechText && speechText.textContent !== "Welcome to Mallikarjuna Rao's Portfolio. Scroll down to enter.") {
                             speechText.textContent = "Welcome to Mallikarjuna Rao's Portfolio. Scroll down to enter.";
                         }
@@ -306,61 +306,71 @@ export default function Home() {
             }
         });
 
-        // Position robot companion in the right available space of the About section
+        // While scrolling starts: robot glides DOWN to the right corner of the page and converts into a small size
         tl.to(robotFlyer, {
             x: () => {
-                if (window.innerWidth < 992) {
-                    return window.innerWidth * 0.10;
+                const w = window.innerWidth;
+                if (w < 640) {
+                    // Mobile: flyer base is left: 50%
+                    const baseX = w * 0.50;
+                    const targetX = w - 55;
+                    return targetX - baseX;
+                } else if (w < 992) {
+                    // Tablet: flyer base is left: 50%
+                    const baseX = w * 0.50;
+                    const targetX = w - 70;
+                    return targetX - baseX;
+                } else {
+                    // Desktop: flyer base is left: 78%
+                    const baseX = w * 0.78;
+                    const targetX = w - 82;
+                    return targetX - baseX;
                 }
-                const targetX = window.innerWidth * 0.82;
-                const baseX = window.innerWidth * 0.78;
-                return targetX - baseX;
             },
             y: () => {
-                if (window.innerWidth < 992) {
-                    return window.innerHeight * 0.36;
-                }
-                return 0; // Centered vertically in the right available space
+                const h = window.innerHeight;
+                const baseY = h * 0.50;
+                // Move down toward bottom of the viewport
+                const targetY = h - (window.innerWidth < 640 ? 68 : 88);
+                return targetY - baseY;
             },
             yPercent: -50,
             scale: () => {
-                if (window.innerWidth < 640) return 0.72;
-                if (window.innerWidth < 992) return 0.85;
-                if (window.innerWidth < 1280) return 1.15;
-                return 1.32; // Prominent, sleek, and perfectly sized
+                // Converts into compact, cute companion size docked at bottom-right corner
+                if (window.innerWidth < 640) return 0.48;
+                if (window.innerWidth < 992) return 0.52;
+                return 0.60;
             },
             rotation: 0,
-            duration: 0.45,
+            duration: 0.40,
             ease: "power1.inOut"
         }, 0);
 
         if (speechPanel) {
-            // Maintain proper transform coordinates for NW thought bubble
-            gsap.set(speechPanel, { x: 0, y: 0 });
+            gsap.set(speechPanel, { x: 0, y: 0, scale: 1 });
 
-            // 1. Initial scroll: speechPanel fades out as user leaves the intro
+            // 1. Initial scroll: speechPanel fades out briefly as robot glides down
             tl.to(speechPanel, {
                 opacity: 0,
-                x: -8,
-                y: -8,
-                duration: 0.15,
+                scale: 0.85,
+                duration: 0.12,
                 ease: "power1.out"
             }, 0);
 
-            // 2. When robot settles in About section: speechPanel reveals in NW position!
+            // 2. When robot reaches bottom-right corner: thought bubble reveals in NW position with counter-scale for crisp legibility
             tl.to(speechPanel, {
                 opacity: 1,
-                x: 0,
-                y: 0,
-                duration: 0.28,
+                scale: 1.35,
+                transformOrigin: "bottom right",
+                duration: 0.25,
                 ease: "power2.out"
-            }, 0.52);
+            }, 0.38);
         }
 
         if (robotFire) {
             tl.to(robotFire, {
-                opacity: 0.45,
-                scale: 0.75,
+                opacity: 0.32,
+                scale: 0.50,
                 duration: 0.35,
                 ease: "power1.out"
             }, 0);

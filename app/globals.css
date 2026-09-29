@@ -953,7 +953,7 @@
         .about-card {
             position: relative;
             width: 100%;
-            max-width: min(580px, 48vw);
+            max-width: min(680px, 56vw);
             margin: 0;
             padding: 0 !important;
             background: none !important;
