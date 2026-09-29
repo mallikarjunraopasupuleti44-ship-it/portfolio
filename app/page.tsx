@@ -306,29 +306,28 @@ export default function Home() {
             }
         });
 
-        // Position robot prominently in the right available space of the About section
-        // Decreased somewhat to a balanced 1.48 (was 1.95)
+        // Position robot companion in the right available space of the About section
         tl.to(robotFlyer, {
             x: () => {
-                if (window.innerWidth < 850) {
-                    return window.innerWidth * 0.35;
+                if (window.innerWidth < 992) {
+                    return window.innerWidth * 0.10;
                 }
-                const cardRight = Math.min(window.innerWidth * 0.07 + 640, window.innerWidth * 0.58);
-                const rightCenter = (cardRight + (window.innerWidth - 60)) / 2;
-                const baseX = window.innerWidth * 0.72;
-                return rightCenter - baseX;
+                const targetX = window.innerWidth * 0.82;
+                const baseX = window.innerWidth * 0.78;
+                return targetX - baseX;
             },
             y: () => {
-                if (window.innerWidth < 850) {
-                    return window.innerHeight * 0.38;
+                if (window.innerWidth < 992) {
+                    return window.innerHeight * 0.36;
                 }
                 return 0; // Centered vertically in the right available space
             },
             yPercent: -50,
             scale: () => {
-                if (window.innerWidth < 850) return 0.72;
-                if (window.innerWidth < 1200) return 1.30;
-                return 1.48; // Decreased somewhat: balanced, sleek, and perfectly sized
+                if (window.innerWidth < 640) return 0.65;
+                if (window.innerWidth < 992) return 0.78;
+                if (window.innerWidth < 1280) return 1.20;
+                return 1.40; // Balanced, sleek, and perfectly sized
             },
             rotation: 0,
             duration: 0.45,
@@ -336,23 +335,29 @@ export default function Home() {
         }, 0);
 
         if (speechPanel) {
-            // Maintain centered horizontal alignment directly above robot
-            gsap.set(speechPanel, { xPercent: -50 });
+            const isDesktop = () => window.innerWidth >= 992;
+
+            // Maintain proper transform coordinates
+            gsap.set(speechPanel, { 
+                x: 0,
+                yPercent: () => isDesktop() ? -50 : 0,
+                xPercent: () => isDesktop() ? 0 : -50
+            });
 
             // 1. Initial scroll: speechPanel fades out as user leaves the intro
             tl.to(speechPanel, {
                 opacity: 0,
-                y: -10,
-                xPercent: -50,
+                x: () => isDesktop() ? -12 : 0,
+                y: () => isDesktop() ? 0 : -8,
                 duration: 0.15,
                 ease: "power1.out"
             }, 0);
 
-            // 2. When robot settles in About section: speechPanel reveals with the new question prompt!
+            // 2. When robot settles in About section: speechPanel reveals on the left side of the robot!
             tl.to(speechPanel, {
                 opacity: 1,
+                x: 0,
                 y: 0,
-                xPercent: -50,
                 duration: 0.28,
                 ease: "power2.out"
             }, 0.52);
@@ -375,7 +380,7 @@ export default function Home() {
                 speechText.textContent = "Ask me anything about Mallikarjuna Rao";
             }
             if (speechPanel) {
-                gsap.to(speechPanel, { opacity: 1, y: 0, xPercent: -50, duration: 0.3 });
+                gsap.to(speechPanel, { opacity: 1, x: 0, y: 0, duration: 0.3 });
                 speechPanel.classList.add('visible');
             }
             setTimeout(() => {
@@ -462,7 +467,13 @@ export default function Home() {
     
     startIntroSequence();
 
+    const handleResize = () => {
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener('resize', handleResize);
+
     return () => {
+      window.removeEventListener('resize', handleResize);
       lenis.destroy();
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
@@ -500,7 +511,7 @@ export default function Home() {
 
     <!-- ===== COMPANION ROBOT LAYER (Fixed in Front) ===== -->
     <div id="robot-scene">
-        <div id="robot-flyer" style="left: 72%;">
+        <div id="robot-flyer" style="left: 78%;">
             <div id="speech-panel" class="font-body" aria-live="polite">
                 <span id="speech-label" class="font-heading">AI Assistant</span>
                 <span id="speech-text"></span>
