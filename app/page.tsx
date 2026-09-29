@@ -418,11 +418,13 @@ export default function Home() {
         }, 0.65);
 
         if (speechPanel) {
+            // As robot goes down to the corner, the speech box disappears
             tl.to(speechPanel, {
-                scale: 1.35,
-                transformOrigin: "bottom right",
-                duration: 0.28,
-                ease: "power1.inOut"
+                opacity: 0,
+                scale: 0.85,
+                pointerEvents: "none",
+                duration: 0.20,
+                ease: "power1.out"
             }, 0.65);
         }
 
@@ -436,6 +438,7 @@ export default function Home() {
         }
 
         // Robot click interaction
+        let cornerSpeechTimeout: ReturnType<typeof setTimeout> | null = null;
         robotFlyer?.addEventListener('click', () => {
             robotFlyer.classList.add('nodding', 'eyes-pulse');
             speak("Ask me anything about Mallikarjuna Rao");
@@ -443,8 +446,16 @@ export default function Home() {
                 speechText.textContent = "Ask me anything about Mallikarjuna Rao";
             }
             if (speechPanel) {
-                gsap.to(speechPanel, { opacity: 1, duration: 0.3 });
+                gsap.to(speechPanel, { opacity: 1, scale: 1.25, pointerEvents: "auto", duration: 0.3 });
                 speechPanel.classList.add('visible');
+
+                // If robot is docked down in the corner, auto-hide the speech box after 3 seconds
+                if (tl.progress() >= 0.65) {
+                    if (cornerSpeechTimeout) clearTimeout(cornerSpeechTimeout);
+                    cornerSpeechTimeout = setTimeout(() => {
+                        gsap.to(speechPanel, { opacity: 0, pointerEvents: "none", duration: 0.4 });
+                    }, 3200);
+                }
             }
             setTimeout(() => {
                 robotFlyer.classList.remove('nodding', 'eyes-pulse');
