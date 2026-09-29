@@ -285,15 +285,15 @@ export default function Home() {
                         spaceBg?.classList.remove('stable');
                     }
 
-                    // Navbar appears ONLY after robot reaches down (progress >= 0.46)
-                    if (self.progress >= 0.46) {
+                    // Navbar appears when user reaches About (progress >= 0.30)
+                    if (self.progress >= 0.30) {
                         glassNav?.classList.add('visible');
                     } else {
                         glassNav?.classList.remove('visible');
                     }
 
                     // Dynamic speech panel content
-                    if (self.progress >= 0.36) {
+                    if (self.progress >= 0.28) {
                         if (speechText && speechText.textContent !== "Ask me anything about Mallikarjuna Rao") {
                             speechText.textContent = "Ask me anything about Mallikarjuna Rao";
                         }
@@ -306,40 +306,28 @@ export default function Home() {
             }
         });
 
-        // While scrolling starts: robot glides DOWN to the right corner of the page and converts into a small size
+        // ══════════════════════════════════════════════════════════════
+        // STAGE 1 (0.00 -> 0.40): Space Intro -> Lands in About Page
+        // ══════════════════════════════════════════════════════════════
         tl.to(robotFlyer, {
             x: () => {
                 const w = window.innerWidth;
-                if (w < 640) {
-                    // Mobile: flyer base is left: 50%
-                    const baseX = w * 0.50;
-                    const targetX = w - 55;
-                    return targetX - baseX;
-                } else if (w < 992) {
-                    // Tablet: flyer base is left: 50%
-                    const baseX = w * 0.50;
-                    const targetX = w - 70;
-                    return targetX - baseX;
-                } else {
-                    // Desktop: flyer base is left: 78%
-                    const baseX = w * 0.78;
-                    const targetX = w - 82;
-                    return targetX - baseX;
-                }
+                if (w < 992) return w * 0.10;
+                const targetX = w * 0.81;
+                const baseX = w * 0.78;
+                return targetX - baseX;
             },
             y: () => {
                 const h = window.innerHeight;
-                const baseY = h * 0.50;
-                // Move down toward bottom of the viewport
-                const targetY = h - (window.innerWidth < 640 ? 68 : 88);
-                return targetY - baseY;
+                if (window.innerWidth < 992) return h * 0.36;
+                return 0; // Centered vertically in About section right side
             },
             yPercent: -50,
             scale: () => {
-                // Converts into compact, cute companion size docked at bottom-right corner
-                if (window.innerWidth < 640) return 0.48;
-                if (window.innerWidth < 992) return 0.52;
-                return 0.60;
+                if (window.innerWidth < 640) return 0.72;
+                if (window.innerWidth < 992) return 0.85;
+                if (window.innerWidth < 1280) return 1.10;
+                return 1.20; // Prominent, sleek companion in About page
             },
             rotation: 0,
             duration: 0.40,
@@ -349,31 +337,102 @@ export default function Home() {
         if (speechPanel) {
             gsap.set(speechPanel, { x: 0, y: 0, scale: 1 });
 
-            // 1. Initial scroll: speechPanel fades out briefly as robot glides down
+            // Fades out briefly as robot leaves intro position
             tl.to(speechPanel, {
                 opacity: 0,
-                scale: 0.85,
                 duration: 0.12,
                 ease: "power1.out"
             }, 0);
 
-            // 2. When robot reaches bottom-right corner: thought bubble reveals in NW position with counter-scale for crisp legibility
+            // Reveals in About page in North-West position
             tl.to(speechPanel, {
                 opacity: 1,
-                scale: 1.35,
-                transformOrigin: "bottom right",
-                duration: 0.25,
+                scale: 1,
+                duration: 0.22,
                 ease: "power2.out"
-            }, 0.38);
+            }, 0.32);
         }
 
         if (robotFire) {
             tl.to(robotFire, {
-                opacity: 0.32,
-                scale: 0.50,
+                opacity: 0.45,
+                scale: 0.70,
                 duration: 0.35,
                 ease: "power1.out"
             }, 0);
+        }
+
+        // About Card reveal
+        const aboutCard = document.querySelector('.about-card');
+        if (aboutCard) {
+            tl.fromTo(aboutCard, 
+                { opacity: 0, y: 40, scale: 0.97 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.35,
+                    ease: "power2.out"
+                },
+                0.32
+            );
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        // STAGE 2 (0.65 -> 0.95): Scrolling past About -> Docks at Right Corner
+        // ══════════════════════════════════════════════════════════════
+        tl.to(robotFlyer, {
+            x: () => {
+                const w = window.innerWidth;
+                if (w < 640) {
+                    const baseX = w * 0.50 + 46;
+                    const targetCenterX = w - 38;
+                    return targetCenterX - baseX;
+                } else if (w < 992) {
+                    const baseX = w * 0.50 + 57.5;
+                    const targetCenterX = w - 48;
+                    return targetCenterX - baseX;
+                } else {
+                    const baseX = w * 0.78 + 70;
+                    const targetCenterX = w - 62;
+                    return targetCenterX - baseX;
+                }
+            },
+            y: () => {
+                const h = window.innerHeight;
+                if (window.innerWidth < 640) {
+                    return h * 0.50 - 40;
+                } else if (window.innerWidth < 992) {
+                    return h * 0.50 - 50;
+                } else {
+                    return h * 0.50 - 64;
+                }
+            },
+            scale: () => {
+                if (window.innerWidth < 640) return 0.42;
+                if (window.innerWidth < 992) return 0.46;
+                return 0.52; // Small, cute companion docked at bottom-right corner
+            },
+            duration: 0.30,
+            ease: "power1.inOut"
+        }, 0.65);
+
+        if (speechPanel) {
+            tl.to(speechPanel, {
+                scale: 1.35,
+                transformOrigin: "bottom right",
+                duration: 0.28,
+                ease: "power1.inOut"
+            }, 0.65);
+        }
+
+        if (robotFire) {
+            tl.to(robotFire, {
+                opacity: 0.28,
+                scale: 0.38,
+                duration: 0.28,
+                ease: "power1.out"
+            }, 0.65);
         }
 
         // Robot click interaction
@@ -384,33 +443,13 @@ export default function Home() {
                 speechText.textContent = "Ask me anything about Mallikarjuna Rao";
             }
             if (speechPanel) {
-                gsap.to(speechPanel, { opacity: 1, x: 0, y: 0, duration: 0.3 });
+                gsap.to(speechPanel, { opacity: 1, duration: 0.3 });
                 speechPanel.classList.add('visible');
             }
             setTimeout(() => {
                 robotFlyer.classList.remove('nodding', 'eyes-pulse');
             }, 1200);
         });
-
-        // Cinematic reveal for About Card (the matter) ONLY AFTER robot reaches down
-        // Robot finishes landing at 0.45; About card reveals starting at 0.48
-        const aboutCard = document.querySelector('.about-card');
-        if (aboutCard) {
-            tl.fromTo(aboutCard, 
-                { opacity: 0, y: 50, scale: 0.96 },
-                {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    duration: 0.38,
-                    ease: "power2.out"
-                },
-                0.48
-            );
-        }
-
-        // Timeline duration buffer to ensure exact 1.0 total duration
-        tl.to({}, { duration: 0.14 }, 0.86);
 
         // Smooth scroll for nav links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -620,12 +659,12 @@ export default function Home() {
             </div>
         </section>
 
-        <!-- Bottom Spacer -->
-        <div style="height: 10vh;"></div>
+        <!-- Spacer for scrolling past About into corner companion state -->
+        <div style="height: 100vh;"></div>
     </main>
 
     <!-- Scroll driver trigger -->
-    <div id="zoom-trigger" style="position: absolute; top: 0; left: 0; width: 100%; height: 210vh; z-index: -1; pointer-events: none;"></div>
+    <div id="zoom-trigger" style="position: absolute; top: 0; left: 0; width: 100%; height: 300vh; z-index: -1; pointer-events: none;"></div>
 ` }} />
   );
 }
