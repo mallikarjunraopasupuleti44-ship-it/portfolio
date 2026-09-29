@@ -724,25 +724,25 @@
                         radial-gradient(ellipse at 65% 50%, rgba(80, 200, 255, 0.25) 0%, transparent 55%);
         }
 
-        /* ── Speech interface panel — positioned to the LEFT of the robot ── */
+        /* ── Speech / Thought interface panel — positioned North-West of the robot ── */
         #speech-panel {
             position: absolute;
-            top: 25%;
-            right: calc(100% + 16px); /* Placed to the LEFT of the robot */
-            bottom: auto;
+            bottom: calc(100% - 25px);
+            right: 65%; /* Positioned North-West (top-left) of the robot */
+            top: auto;
             left: auto;
-            transform: translateY(-50%) translateX(10px);
+            transform: translate(6px, -6px);
             margin: 0;
             width: max-content;
             max-width: 215px;
-            padding: 10px 16px;
-            background: rgba(10, 18, 48, 0.84);
+            padding: 11px 16px;
+            background: rgba(10, 18, 48, 0.85);
             backdrop-filter: blur(20px) saturate(160%);
             -webkit-backdrop-filter: blur(20px) saturate(160%);
             border: 1px solid rgba(130, 185, 255, 0.42);
-            border-radius: 14px;
+            border-radius: 18px;
             box-shadow:
-                0 0 25px rgba(56, 189, 248, 0.2),
+                0 0 25px rgba(56, 189, 248, 0.22),
                 0 8px 24px rgba(0, 0, 0, 0.5),
                 inset 0 1px 0 rgba(200, 230, 255, 0.25);
             color: #ffffff;
@@ -761,30 +761,43 @@
         }
         #speech-panel.visible {
             opacity: 1;
-            transform: translateY(-50%) translateX(0);
+            transform: translate(0, 0);
             pointer-events: auto;
         }
-        /* Speech tail on right edge pointing towards the robot */
-        #speech-panel::after {
-            content: '';
+
+        /* ── Thought Bubble Connector Dots (Trailing toward robot head) ── */
+        .thought-trail {
             position: absolute;
-            top: 50%;
-            right: -6px;
-            margin-top: -6px;
-            width: 12px;
-            height: 12px;
-            background: rgba(10, 18, 48, 0.84);
-            border-top: 1px solid rgba(130, 185, 255, 0.42);
-            border-right: 1px solid rgba(130, 185, 255, 0.42);
-            backdrop-filter: blur(20px);
-            border-top-right-radius: 3px;
-            transform: rotate(45deg);
-            z-index: -1;
+            bottom: 0;
+            right: 0;
+            pointer-events: none;
         }
-        /* Thin luminous top accent */
+        .thought-dot {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(10, 18, 48, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(130, 185, 255, 0.45);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(200, 230, 255, 0.25);
+        }
+        .thought-dot.dot-lg {
+            width: 10px;
+            height: 10px;
+            bottom: -9px;
+            right: 10px;
+        }
+        .thought-dot.dot-sm {
+            width: 6px;
+            height: 6px;
+            bottom: -18px;
+            right: 0px;
+        }
+
+        /* Luminous top accent */
         #speech-panel::before {
             content: '';
-            position: absolute; top: -1px; left: 14px; right: 14px; height: 1px;
+            position: absolute; top: -1px; left: 16px; right: 16px; height: 1px;
             background: linear-gradient(90deg, transparent,
                 rgba(140, 190, 255, 0.55) 30%, rgba(200, 235, 255, 0.8) 50%,
                 rgba(140, 190, 255, 0.55) 70%, transparent);
@@ -865,45 +878,39 @@
             #robot-flyer { left: 50%; }
             #robot-body, #robot-img { width: 85px; }
             #speech-panel {
-                /* On tablet/mobile, position above robot to fit within screen boundaries */
-                top: auto;
-                right: auto;
-                bottom: calc(100% + 14px);
-                left: 50%;
-                transform: translateX(-50%) translateY(8px);
-                max-width: 200px;
+                right: 45%;
+                bottom: calc(100% - 15px);
+                max-width: 195px;
                 font-size: 0.74rem;
-                padding: 8px 13px;
-                text-align: center;
+                padding: 9px 14px;
             }
-            #speech-panel.visible {
-                transform: translateX(-50%) translateY(0);
+            .thought-dot.dot-lg {
+                bottom: -8px;
+                right: 8px;
             }
-            #speech-panel::after {
-                top: auto;
-                bottom: -6px;
-                left: 50%;
-                right: auto;
-                margin-left: -6px;
-                margin-top: 0;
-                border-top: none;
-                border-left: none;
-                border-right: 1px solid rgba(130, 185, 255, 0.42);
-                border-bottom: 1px solid rgba(130, 185, 255, 0.42);
-                border-bottom-right-radius: 3px;
-                border-top-right-radius: 0;
-                transform: rotate(45deg);
-            }
-            #speech-label {
-                justify-content: center;
+            .thought-dot.dot-sm {
+                bottom: -16px;
+                right: -1px;
             }
         }
         @media (max-width: 480px) {
             #robot-body, #robot-img { width: 70px; }
             #speech-panel { 
-                max-width: 175px;
+                right: 32%;
+                bottom: calc(100% - 12px);
+                max-width: 170px;
                 font-size: 0.70rem;
-                padding: 7px 10px;
+                padding: 7px 11px;
+            }
+            .thought-dot.dot-lg {
+                width: 8px; height: 8px;
+                bottom: -7px;
+                right: 6px;
+            }
+            .thought-dot.dot-sm {
+                width: 5px; height: 5px;
+                bottom: -13px;
+                right: -1px;
             }
             #skip-intro { top: 20px; right: 20px; padding: 6px 14px; font-size: 0.55rem; }
         }

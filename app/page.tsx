@@ -335,25 +335,19 @@ export default function Home() {
         }, 0);
 
         if (speechPanel) {
-            const isDesktop = () => window.innerWidth >= 992;
-
-            // Maintain proper transform coordinates
-            gsap.set(speechPanel, { 
-                x: 0,
-                yPercent: () => isDesktop() ? -50 : 0,
-                xPercent: () => isDesktop() ? 0 : -50
-            });
+            // Maintain proper transform coordinates for NW thought bubble
+            gsap.set(speechPanel, { x: 0, y: 0 });
 
             // 1. Initial scroll: speechPanel fades out as user leaves the intro
             tl.to(speechPanel, {
                 opacity: 0,
-                x: () => isDesktop() ? -12 : 0,
-                y: () => isDesktop() ? 0 : -8,
+                x: -8,
+                y: -8,
                 duration: 0.15,
                 ease: "power1.out"
             }, 0);
 
-            // 2. When robot settles in About section: speechPanel reveals on the left side of the robot!
+            // 2. When robot settles in About section: speechPanel reveals in NW position!
             tl.to(speechPanel, {
                 opacity: 1,
                 x: 0,
@@ -515,6 +509,10 @@ export default function Home() {
             <div id="speech-panel" class="font-body" aria-live="polite">
                 <span id="speech-label" class="font-heading">AI Assistant</span>
                 <span id="speech-text"></span>
+                <span class="thought-trail" aria-hidden="true">
+                    <span class="thought-dot dot-lg"></span>
+                    <span class="thought-dot dot-sm"></span>
+                </span>
             </div>
             <div id="robot-body">
                 <img id="robot-img" src="/cute-robot.jpg" alt="AI Assistant">
