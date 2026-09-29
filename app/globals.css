@@ -1293,223 +1293,7 @@
             transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
-        /* ── SVG Orbit Tracks & Traveling Energy Pulses ── */
-        .orbit-tracks-svg {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: visible;
-            z-index: 4;
-        }
-
-        .orbit-track {
-            fill: none;
-            stroke-width: 1.2px;
-            stroke-dasharray: 4 6;
-            opacity: 0.4;
-            transition: opacity 0.4s ease, stroke-width 0.4s ease, filter 0.4s ease;
-        }
-        .track-inner { stroke: url(#orbitGlowInner); }
-        .track-middle { stroke: url(#orbitGlowMid); }
-        .track-outer { stroke: url(#orbitGlowOuter); }
-
-        .orbit-track.highlighted {
-            opacity: 0.95;
-            stroke-width: 2px;
-            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.85));
-            stroke-dasharray: none;
-        }
-
-        /* Continuous Energy Pulses traveling along orbits */
-        .orbit-energy-pulse {
-            fill: none;
-            stroke-width: 2.2px;
-            stroke-linecap: round;
-            opacity: 0.75;
-            filter: url(#energyGlow);
-            pointer-events: none;
-        }
-        .energy-inner {
-            stroke: #38bdf8;
-            stroke-dasharray: 40 320;
-            animation: energyPulseInner 14s linear infinite;
-        }
-        .energy-middle {
-            stroke: #c084fc;
-            stroke-dasharray: 55 520;
-            animation: energyPulseMiddle 20s linear infinite;
-        }
-        .energy-outer {
-            stroke: #60a5fa;
-            stroke-dasharray: 75 720;
-            animation: energyPulseOuter 28s linear infinite;
-        }
-
-        @keyframes energyPulseInner {
-            from { stroke-dashoffset: 720; }
-            to { stroke-dashoffset: 0; }
-        }
-        @keyframes energyPulseMiddle {
-            from { stroke-dashoffset: 1150; }
-            to { stroke-dashoffset: 0; }
-        }
-        @keyframes energyPulseOuter {
-            from { stroke-dashoffset: 1600; }
-            to { stroke-dashoffset: 0; }
-        }
-
-        /* ── Dynamic Skill-to-Core Connection Beam ── */
-        .core-connect-line {
-            stroke: url(#orbitGlowInner);
-            stroke-width: 1.8px;
-            stroke-dasharray: 4 3;
-            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.95));
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .core-connect-particle {
-            fill: #ffffff;
-            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 1)) drop-shadow(0 0 15px rgba(168, 85, 247, 0.9));
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        /* ── Central AI Planet ── */
-        .central-planet {
-            position: absolute;
-            width: 105px;
-            height: 105px;
-            border-radius: 50%;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: auto;
-            cursor: pointer;
-            animation: planetFloat 6s ease-in-out infinite, planetBreathe 7s ease-in-out infinite;
-            will-change: transform;
-        }
-
-        @keyframes planetFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-        }
-
-        @keyframes planetBreathe {
-            0%, 100% { scale: 1.0; }
-            50% { scale: 1.025; }
-        }
-
-        .planet-corona-outer {
-            position: absolute;
-            inset: -32px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, rgba(168, 85, 247, 0.25) 42%, rgba(56, 189, 248, 0.08) 62%, transparent 75%);
-            filter: blur(16px);
-            pointer-events: none;
-            animation: planetCoronaPulse 5s ease-in-out infinite alternate;
-        }
-
-        @keyframes planetCoronaPulse {
-            0% { transform: scale(0.96); opacity: 0.7; }
-            100% { transform: scale(1.08); opacity: 0.95; }
-        }
-
-        .planet-atmosphere-halo {
-            position: absolute;
-            inset: -12px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.55) 0%, rgba(147, 197, 253, 0.3) 50%, transparent 70%);
-            filter: blur(8px);
-            pointer-events: none;
-            mix-blend-mode: screen;
-        }
-
-        .planet-sphere {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow:
-                0 0 35px rgba(56, 189, 248, 0.65),
-                0 0 70px rgba(168, 85, 247, 0.35),
-                inset 0 0 22px rgba(56, 189, 248, 0.85);
-            border: 1.5px solid rgba(147, 197, 253, 0.65);
-            background: #020617;
-        }
-
-        .planet-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            display: block;
-            animation: planetCircuitSpin 120s linear infinite;
-            filter: brightness(1.1) contrast(1.15);
-        }
-
-        @keyframes planetCircuitSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Slow light sweep across the planet surface */
-        .planet-light-sweep {
-            position: absolute;
-            inset: -50%;
-            background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.28) 50%, transparent 60%);
-            transform: rotate(25deg) translateX(-100%);
-            animation: planetSweep 8s ease-in-out infinite;
-            pointer-events: none;
-            mix-blend-mode: overlay;
-        }
-
-        @keyframes planetSweep {
-            0%, 25% { transform: rotate(25deg) translateX(-120%); }
-            55%, 100% { transform: rotate(25deg) translateX(120%); }
-        }
-
-        .planet-rim-glow {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            box-shadow: inset 0 0 16px rgba(56, 189, 248, 0.7);
-            pointer-events: none;
-        }
-
-        .planet-core-label {
-            position: absolute;
-            top: calc(100% + 8px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            white-space: nowrap;
-            pointer-events: none;
-        }
-
-        .core-tag {
-            font-size: 0.52rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            color: #a855f7;
-            text-transform: uppercase;
-            text-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
-        }
-
-        .core-tech {
-            font-size: 0.62rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            color: #e2e8f0;
-            margin-top: 1px;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-        }
-
-        /* ── Orbiting Skill Asteroids ── */
+        /* ── Orbiting Skill Stars ── */
         .skill-asteroid {
             position: absolute;
             top: 50%;
@@ -1527,8 +1311,8 @@
         }
 
         .asteroid-mesh {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             position: relative;
             display: flex;
             align-items: center;
@@ -1541,11 +1325,12 @@
             position: absolute;
             inset: 0;
             clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
-            background: linear-gradient(135deg, rgba(20, 38, 75, 0.92) 0%, rgba(8, 12, 28, 0.98) 100%);
-            border: 1.2px solid rgba(147, 197, 253, 0.55);
+            background: linear-gradient(135deg, rgba(16, 32, 68, 0.94) 0%, rgba(6, 10, 26, 0.98) 100%);
+            border: 1.2px solid rgba(147, 197, 253, 0.65);
             box-shadow:
-                0 0 16px rgba(56, 189, 248, 0.4),
-                inset 0 0 12px rgba(168, 85, 247, 0.3);
+                0 0 20px rgba(56, 189, 248, 0.5),
+                0 0 35px rgba(168, 85, 247, 0.3),
+                inset 0 0 12px rgba(168, 85, 247, 0.35);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             transition: box-shadow 0.3s, border-color 0.3s;
@@ -1553,13 +1338,19 @@
 
         .asteroid-glow-ring {
             position: absolute;
-            inset: -6px;
+            inset: -8px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, rgba(168, 85, 247, 0.25) 50%, transparent 72%);
-            filter: blur(4px);
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.5) 0%, rgba(168, 85, 247, 0.3) 50%, transparent 72%);
+            filter: blur(5px);
             pointer-events: none;
-            opacity: 0.75;
+            opacity: 0.85;
             transition: opacity 0.3s, transform 0.3s;
+            animation: starHaloTwinkle 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes starHaloTwinkle {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            100% { transform: scale(1.1); opacity: 0.95; }
         }
 
         .asteroid-core-light {

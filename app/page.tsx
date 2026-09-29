@@ -482,12 +482,6 @@ export default function Home() {
         const container = document.getElementById('universePicContainer');
         const frame = document.getElementById('universePicFrame');
         const stage = document.getElementById('orbitStage');
-        const centralPlanet = document.getElementById('centralPlanet');
-        const connectLine = document.getElementById('coreConnectLine');
-        const connectParticle = document.getElementById('coreConnectParticle');
-        const trackInner = document.querySelector('.orbit-track.track-inner');
-        const trackMiddle = document.querySelector('.orbit-track.track-middle');
-        const trackOuter = document.querySelector('.orbit-track.track-outer');
 
         if (!container || !frame || !stage) return () => {};
 
@@ -568,32 +562,17 @@ export default function Home() {
 
         let activeAsteroid: AsteroidItem | null = null;
 
-        // Track highlights helper
-        function updateTrackHighlights() {
-            const orbits = new Set<string>();
-            if (activeAsteroid) orbits.add(activeAsteroid.orbit);
-            asteroids.forEach(a => {
-                if (a.isHovered) orbits.add(a.orbit);
-            });
-
-            if (trackInner) trackInner.classList.toggle('highlighted', orbits.has('inner'));
-            if (trackMiddle) trackMiddle.classList.toggle('highlighted', orbits.has('middle'));
-            if (trackOuter) trackOuter.classList.toggle('highlighted', orbits.has('outer'));
-        }
-
         // Asteroid events (hover, click, keyboard)
         asteroids.forEach(item => {
             const el = item.el;
             el.addEventListener('mouseenter', () => {
                 item.isHovered = true;
                 item.targetSpeed = item.baseSpeed * 0.15; // smooth slow down
-                updateTrackHighlights();
             });
 
             el.addEventListener('mouseleave', () => {
                 item.isHovered = false;
                 item.targetSpeed = item.baseSpeed; // smooth return
-                updateTrackHighlights();
             });
 
             el.addEventListener('click', (e) => {
@@ -610,17 +589,7 @@ export default function Home() {
                     item.isActive = true;
                     el.classList.add('active');
                     activeAsteroid = item;
-
-                    // Central core pulse
-                    const halo = centralPlanet?.querySelector('.planet-atmosphere-halo') as HTMLElement;
-                    if (halo) {
-                        gsap.fromTo(halo,
-                            { scale: 1.35, opacity: 1 },
-                            { scale: 1, opacity: 0.8, duration: 0.8, ease: "power2.out" }
-                        );
-                    }
                 }
-                updateTrackHighlights();
             });
 
             el.addEventListener('keydown', (e) => {
@@ -634,12 +603,11 @@ export default function Home() {
         // Click outside dismisses active asteroid
         const handleDocClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            if (!target.closest('.skill-asteroid') && !target.closest('#centralPlanet')) {
+            if (!target.closest('.skill-asteroid')) {
                 if (activeAsteroid) {
                     activeAsteroid.isActive = false;
                     activeAsteroid.el.classList.remove('active');
                     activeAsteroid = null;
-                    updateTrackHighlights();
                 }
             }
         };
@@ -744,28 +712,6 @@ export default function Home() {
                 }
             });
 
-            // Update Active Connection Beam & Traveling Particle
-            if (connectLine && connectParticle) {
-                if (activeAsteroid) {
-                    connectLine.setAttribute('x1', activeAsteroid.currentX.toFixed(2));
-                    connectLine.setAttribute('y1', activeAsteroid.currentY.toFixed(2));
-                    connectLine.setAttribute('x2', '0');
-                    connectLine.setAttribute('y2', '0');
-                    connectLine.setAttribute('opacity', '0.9');
-
-                    // Traveling pulse from asteroid (x,y) toward central planet (0,0)
-                    const pulseP = (time * 0.00085) % 1;
-                    const px = activeAsteroid.currentX * (1 - pulseP);
-                    const py = activeAsteroid.currentY * (1 - pulseP);
-                    connectParticle.setAttribute('cx', px.toFixed(2));
-                    connectParticle.setAttribute('cy', py.toFixed(2));
-                    connectParticle.setAttribute('opacity', '1');
-                } else {
-                    connectLine.setAttribute('opacity', '0');
-                    connectParticle.setAttribute('opacity', '0');
-                }
-            }
-
             animFrameId = requestAnimationFrame(render);
         };
 
@@ -773,7 +719,6 @@ export default function Home() {
 
         // ── 4. Section Entry Sequence & Parallax (GSAP ScrollTrigger) ──
         const headerEl = document.getElementById('universeHeader');
-        const tracksEl = document.querySelectorAll('.orbit-track, .orbit-energy-pulse');
         const innerAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="inner"]');
         const middleAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="middle"]');
         const outerAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="outer"]');
@@ -795,55 +740,30 @@ export default function Home() {
             );
         }
 
-        // 0.4s: Central planet corona/atmosphere glow
-        entryTl.fromTo('.planet-corona-outer, .planet-atmosphere-halo',
-            { opacity: 0, scale: 0.7 },
-            { opacity: 1, scale: 1, duration: 1.0, ease: "power2.out" },
-            0.4
-        );
-
-        // 0.7s: Planet scales from 0.90 -> 1.00
-        if (centralPlanet) {
-            entryTl.fromTo(centralPlanet,
-                { opacity: 0, scale: 0.88 },
-                { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.4)" },
-                0.7
-            );
-        }
-
-        // 1.0s: Orbital paths draw on
-        if (tracksEl.length > 0) {
-            entryTl.fromTo(tracksEl,
-                { opacity: 0 },
-                { opacity: 0.75, duration: 0.8, ease: "power2.out" },
-                1.0
-            );
-        }
-
-        // 1.3s: Inner 3 asteroids appear
+        // 0.5s: Inner 3 skill stars appear
         if (innerAsteroids.length > 0) {
             entryTl.fromTo(innerAsteroids,
-                { scale: 0.4, opacity: 0 },
-                { scale: 1, opacity: 1, stagger: 0.08, duration: 0.6, ease: "back.out(1.2)" },
-                1.3
+                { scale: 0.35, opacity: 0 },
+                { scale: 1, opacity: 1, stagger: 0.09, duration: 0.65, ease: "back.out(1.2)" },
+                0.5
             );
         }
 
-        // 1.5s: Middle 3 asteroids appear
+        // 0.75s: Middle 3 skill stars appear
         if (middleAsteroids.length > 0) {
             entryTl.fromTo(middleAsteroids,
-                { scale: 0.4, opacity: 0 },
-                { scale: 1, opacity: 1, stagger: 0.08, duration: 0.6, ease: "back.out(1.2)" },
-                1.5
+                { scale: 0.35, opacity: 0 },
+                { scale: 1, opacity: 1, stagger: 0.09, duration: 0.65, ease: "back.out(1.2)" },
+                0.75
             );
         }
 
-        // 1.7s: Outer 3 asteroids appear
+        // 1.0s: Outer 3 skill stars appear
         if (outerAsteroids.length > 0) {
             entryTl.fromTo(outerAsteroids,
-                { scale: 0.4, opacity: 0 },
-                { scale: 1, opacity: 1, stagger: 0.08, duration: 0.6, ease: "back.out(1.2)" },
-                1.7
+                { scale: 0.35, opacity: 0 },
+                { scale: 1, opacity: 1, stagger: 0.09, duration: 0.65, ease: "back.out(1.2)" },
+                1.0
             );
         }
 
@@ -1086,64 +1006,7 @@ export default function Home() {
                 <div class="universe-pic-frame" id="universePicFrame">
                     <!-- Orbit Stage (3D Coordinate Space centered at 0,0) -->
                     <div class="orbit-stage" id="orbitStage">
-                        <!-- SVG Tracks & Connection Lines -->
-                        <svg class="orbit-tracks-svg" id="orbitTracksSvg" viewBox="-420 -170 840 340" aria-hidden="true">
-                            <defs>
-                                <linearGradient id="orbitGlowInner" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="rgba(56, 189, 248, 0.6)"/>
-                                    <stop offset="50%" stop-color="rgba(168, 85, 247, 0.45)"/>
-                                    <stop offset="100%" stop-color="rgba(56, 189, 248, 0.3)"/>
-                                </linearGradient>
-                                <linearGradient id="orbitGlowMid" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="rgba(56, 189, 248, 0.5)"/>
-                                    <stop offset="50%" stop-color="rgba(147, 197, 253, 0.35)"/>
-                                    <stop offset="100%" stop-color="rgba(168, 85, 247, 0.35)"/>
-                                </linearGradient>
-                                <linearGradient id="orbitGlowOuter" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="rgba(99, 102, 241, 0.5)"/>
-                                    <stop offset="50%" stop-color="rgba(56, 189, 248, 0.4)"/>
-                                    <stop offset="100%" stop-color="rgba(147, 197, 253, 0.35)"/>
-                                </linearGradient>
-                                <filter id="energyGlow" x="-50%" y="-50%" width="200%" height="200%">
-                                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
-                                    <feMerge>
-                                        <feMergeNode in="blur"/>
-                                        <feMergeNode in="SourceGraphic"/>
-                                    </feMerge>
-                                </filter>
-                            </defs>
-
-                            <!-- Base subtle elliptical tracks -->
-                            <ellipse class="orbit-track track-inner" cx="0" cy="0" rx="145" ry="54" />
-                            <ellipse class="orbit-track track-middle" cx="0" cy="0" rx="250" ry="94" />
-                            <ellipse class="orbit-track track-outer" cx="0" cy="0" rx="360" ry="136" />
-
-                            <!-- Continuous energy pulse loops -->
-                            <ellipse class="orbit-energy-pulse energy-inner" cx="0" cy="0" rx="145" ry="54" />
-                            <ellipse class="orbit-energy-pulse energy-middle" cx="0" cy="0" rx="250" ry="94" />
-                            <ellipse class="orbit-energy-pulse energy-outer" cx="0" cy="0" rx="360" ry="136" />
-
-                            <!-- Active Skill -> Central Core Connection Beam -->
-                            <line class="core-connect-line" id="coreConnectLine" x1="0" y1="0" x2="0" y2="0" opacity="0" />
-                            <circle class="core-connect-particle" id="coreConnectParticle" cx="0" cy="0" r="3.5" opacity="0" />
-                        </svg>
-
-                        <!-- Central AI Planet (Floating, Breathing, Light Sweep, Interactive) -->
-                        <div class="central-planet" id="centralPlanet" role="button" tabindex="0" aria-label="Core Technology: AI, Software, Automation">
-                            <div class="planet-corona-outer"></div>
-                            <div class="planet-atmosphere-halo"></div>
-                            <div class="planet-sphere">
-                                <img src="/core-planet.png" alt="AI Core Planet" class="planet-img" />
-                                <div class="planet-light-sweep"></div>
-                                <div class="planet-rim-glow"></div>
-                            </div>
-                            <div class="planet-core-label font-body">
-                                <span class="core-tag font-heading">CORE TECHNOLOGY</span>
-                                <span class="core-tech font-heading">AI • SOFTWARE • AUTOMATION</span>
-                            </div>
-                        </div>
-
-                        <!-- 9 Orbiting Skill Asteroids -->
+                        <!-- 9 Skill Stars Floating in the Universe -->
                         <!-- 1. Artificial Intelligence (Inner Orbit) -->
                         <div class="skill-asteroid" data-skill="ai" data-orbit="inner" role="button" tabindex="0" aria-label="Artificial Intelligence">
                             <div class="asteroid-mesh">
