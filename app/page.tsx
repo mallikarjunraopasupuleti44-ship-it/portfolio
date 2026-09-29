@@ -580,9 +580,9 @@ export default function Home() {
 
         const asteroidElements = Array.from(document.querySelectorAll('.skill-asteroid')) as HTMLElement[];
         const orbitMap: Record<string, { rx: number; ry: number; speed: number; baseOffset: number }> = {
-            inner:  { rx: 160, ry: 70,  speed: 0.00038, baseOffset: 0 },
-            middle: { rx: 265, ry: 115, speed: 0.00026, baseOffset: Math.PI / 4 },
-            outer:  { rx: 375, ry: 160, speed: 0.00017, baseOffset: Math.PI / 2 }
+            inner:  { rx: 145, ry: 54,  speed: 0.00032, baseOffset: 0 },
+            middle: { rx: 250, ry: 94,  speed: 0.00021, baseOffset: Math.PI / 3 },
+            outer:  { rx: 360, ry: 136, speed: 0.00014, baseOffset: (2 * Math.PI) / 3 }
         };
 
         const orbitCounts: Record<string, number> = { inner: 0, middle: 0, outer: 0 };
@@ -749,7 +749,10 @@ export default function Home() {
 
                 // 2. Responsive scale calculation
                 const stageW = stageEl.clientWidth || 900;
-                const responsiveScale = Math.min(1, Math.max(0.40, stageW / 850));
+                const stageH = stageEl.clientHeight || 450;
+                const scaleX = stageW / 820;
+                const scaleY = stageH / 320;
+                const responsiveScale = Math.min(1, Math.max(0.38, Math.min(scaleX, scaleY)));
 
                 // 3. Update Asteroid Positions with 3D Depth
                 asteroids.forEach((item, idx) => {
@@ -775,7 +778,7 @@ export default function Home() {
                     // Scale: smaller when behind, larger when in front
                     let scale = 0.78 + depth * 0.36;
                     if (item.isHovered || item.isActive) {
-                        scale *= 1.18;
+                        scale *= 1.22;
                     }
 
                     // Opacity: lower when behind, full when in front
@@ -800,6 +803,16 @@ export default function Home() {
                     el.style.transform = `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${(y + bob).toFixed(2)}px), 0px) scale(${scale.toFixed(3)})`;
                     el.style.opacity = opacity.toFixed(3);
                     el.style.zIndex = zIndex.toString();
+
+                    // Dynamic tooltip direction flip so it never exceeds screen bounds
+                    const tooltipEl = el.querySelector('.asteroid-tooltip');
+                    if (tooltipEl) {
+                        if (sin < -0.2) {
+                            tooltipEl.classList.add('tooltip-down');
+                        } else {
+                            tooltipEl.classList.remove('tooltip-down');
+                        }
+                    }
                 });
             }
 
@@ -1040,35 +1053,36 @@ export default function Home() {
                 <!-- Orbit Stage -->
                 <div class="orbit-stage" id="orbitStage">
                     <!-- Orbit Rings (SVG with glowing dashed strokes) -->
-                    <svg class="orbit-tracks-svg" id="orbitTracksSvg" viewBox="-450 -250 900 500" aria-hidden="true">
+                    <svg class="orbit-tracks-svg" id="orbitTracksSvg" viewBox="-420 -170 840 340" aria-hidden="true">
                         <defs>
                             <linearGradient id="orbitGlowInner" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="rgba(56, 189, 248, 0.4)"/>
-                                <stop offset="50%" stop-color="rgba(168, 85, 247, 0.25)"/>
-                                <stop offset="100%" stop-color="rgba(56, 189, 248, 0.2)"/>
+                                <stop offset="0%" stop-color="rgba(56, 189, 248, 0.5)"/>
+                                <stop offset="50%" stop-color="rgba(168, 85, 247, 0.35)"/>
+                                <stop offset="100%" stop-color="rgba(56, 189, 248, 0.25)"/>
                             </linearGradient>
                             <linearGradient id="orbitGlowMid" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="rgba(56, 189, 248, 0.3)"/>
-                                <stop offset="50%" stop-color="rgba(147, 197, 253, 0.25)"/>
-                                <stop offset="100%" stop-color="rgba(168, 85, 247, 0.2)"/>
+                                <stop offset="0%" stop-color="rgba(56, 189, 248, 0.4)"/>
+                                <stop offset="50%" stop-color="rgba(147, 197, 253, 0.3)"/>
+                                <stop offset="100%" stop-color="rgba(168, 85, 247, 0.25)"/>
                             </linearGradient>
                             <linearGradient id="orbitGlowOuter" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="rgba(99, 102, 241, 0.3)"/>
-                                <stop offset="50%" stop-color="rgba(56, 189, 248, 0.2)"/>
-                                <stop offset="100%" stop-color="rgba(147, 197, 253, 0.25)"/>
+                                <stop offset="0%" stop-color="rgba(99, 102, 241, 0.4)"/>
+                                <stop offset="50%" stop-color="rgba(56, 189, 248, 0.3)"/>
+                                <stop offset="100%" stop-color="rgba(147, 197, 253, 0.3)"/>
                             </linearGradient>
                         </defs>
-                        <ellipse class="orbit-track track-inner" cx="0" cy="0" rx="160" ry="70" />
-                        <ellipse class="orbit-track track-middle" cx="0" cy="0" rx="265" ry="115" />
-                        <ellipse class="orbit-track track-outer" cx="0" cy="0" rx="375" ry="160" />
+                        <ellipse class="orbit-track track-inner" cx="0" cy="0" rx="145" ry="54" />
+                        <ellipse class="orbit-track track-middle" cx="0" cy="0" rx="250" ry="94" />
+                        <ellipse class="orbit-track track-outer" cx="0" cy="0" rx="360" ry="136" />
                     </svg>
 
-                    <!-- Central Planet -->
-                    <div class="central-planet" id="centralPlanet">
+                    <!-- Central Planet (Nano Banana AI Core) -->
+                    <div class="central-planet" id="centralPlanet" role="button" tabindex="0" aria-label="Core Technology: AI, Software, Automation">
+                        <div class="planet-corona-outer"></div>
                         <div class="planet-atmosphere-halo"></div>
                         <div class="planet-sphere">
-                            <div class="planet-specular"></div>
-                            <div class="planet-texture-glow"></div>
+                            <img src="/core-planet.png" alt="AI Core Planet" class="planet-img" />
+                            <div class="planet-rim-glow"></div>
                         </div>
                         <div class="planet-core-label font-body">
                             <span class="core-tag font-heading">CORE TECHNOLOGY</span>
