@@ -1311,66 +1311,64 @@
         }
 
         .asteroid-mesh {
-            width: 44px;
-            height: 44px;
+            width: 54px;
+            height: 54px;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: box-shadow 0.3s ease;
             will-change: transform;
         }
 
-        .asteroid-facet {
-            position: absolute;
-            inset: 0;
-            clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
-            background: linear-gradient(135deg, rgba(16, 32, 68, 0.94) 0%, rgba(6, 10, 26, 0.98) 100%);
-            border: 1.2px solid rgba(147, 197, 253, 0.65);
-            box-shadow:
-                0 0 20px rgba(56, 189, 248, 0.5),
-                0 0 35px rgba(168, 85, 247, 0.3),
-                inset 0 0 12px rgba(168, 85, 247, 0.35);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            transition: box-shadow 0.3s, border-color 0.3s;
+        .asteroid-rock-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45)) drop-shadow(0 0 20px rgba(168, 85, 247, 0.3));
+            transition: filter 0.3s ease, transform 0.3s ease;
         }
 
         .asteroid-glow-ring {
             position: absolute;
             inset: -8px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.5) 0%, rgba(168, 85, 247, 0.3) 50%, transparent 72%);
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, rgba(168, 85, 247, 0.25) 50%, transparent 72%);
             filter: blur(5px);
             pointer-events: none;
-            opacity: 0.85;
+            opacity: 0.8;
             transition: opacity 0.3s, transform 0.3s;
-            animation: starHaloTwinkle 4s ease-in-out infinite alternate;
+            animation: starHaloTwinkle 5s ease-in-out infinite alternate;
         }
 
         @keyframes starHaloTwinkle {
-            0% { transform: scale(0.95); opacity: 0.7; }
+            0% { transform: scale(0.95); opacity: 0.65; }
             100% { transform: scale(1.1); opacity: 0.95; }
         }
 
-        .asteroid-core-light {
+        .asteroid-energy-core {
             position: absolute;
-            width: 4px;
-            height: 4px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
-            background: #ffffff;
-            box-shadow: 0 0 8px #38bdf8, 0 0 14px #a855f7;
-            pointer-events: none;
+            background: radial-gradient(circle, rgba(14, 28, 64, 0.88) 0%, rgba(6, 10, 26, 0.94) 100%);
+            border: 1.2px solid rgba(56, 189, 248, 0.65);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.6), inset 0 0 6px rgba(168, 85, 247, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            transition: all 0.3s ease;
         }
 
         .asteroid-icon-wrap {
             position: relative;
-            z-index: 2;
+            z-index: 4;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #38bdf8;
-            filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6));
+            filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.7));
             transition: color 0.3s ease, filter 0.3s ease;
         }
 
@@ -1480,15 +1478,20 @@
         .skill-asteroid:hover .asteroid-glow-ring,
         .skill-asteroid.active .asteroid-glow-ring {
             opacity: 1;
-            transform: scale(1.15);
+            transform: scale(1.2);
         }
 
-        .skill-asteroid:hover .asteroid-facet,
-        .skill-asteroid.active .asteroid-facet {
-            border-color: rgba(56, 189, 248, 0.95);
-            box-shadow:
-                0 0 25px rgba(56, 189, 248, 0.85),
-                inset 0 0 16px rgba(168, 85, 247, 0.5);
+        .skill-asteroid:hover .asteroid-rock-img,
+        .skill-asteroid.active .asteroid-rock-img {
+            filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 28px rgba(168, 85, 247, 0.75)) brightness(1.2);
+            transform: scale(1.08);
+        }
+
+        .skill-asteroid:hover .asteroid-energy-core,
+        .skill-asteroid.active .asteroid-energy-core {
+            border-color: rgba(56, 189, 248, 1);
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.95), inset 0 0 8px rgba(168, 85, 247, 0.8);
+            transform: scale(1.08);
         }
 
         .skill-asteroid:hover .asteroid-icon-wrap,

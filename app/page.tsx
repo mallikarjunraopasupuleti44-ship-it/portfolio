@@ -513,14 +513,14 @@ export default function Home() {
 
         const asteroidEls = Array.from(document.querySelectorAll('.skill-asteroid')) as HTMLElement[];
         
-        // Speeds matching spec:
-        // INNER: 22s revolution = 2*PI / 22 = 0.2855 rad/s
-        // MIDDLE: 32s revolution = 2*PI / 32 = 0.1963 rad/s
-        // OUTER: 45s revolution = 2*PI / 45 = 0.1396 rad/s
+        // Speeds: Graceful, slightly slow cosmic drift
+        // INNER: ~78s revolution = 0.080 rad/s
+        // MIDDLE: ~120s revolution = 0.052 rad/s
+        // OUTER: ~180s revolution = 0.035 rad/s
         const orbitConfig = {
-            inner:  { rx: 145, ry: 54,  speed: 0.2855, baseAngle: 0 },
-            middle: { rx: 250, ry: 94,  speed: 0.1963, baseAngle: Math.PI / 4 },
-            outer:  { rx: 360, ry: 136, speed: 0.1396, baseAngle: Math.PI / 2 }
+            inner:  { rx: 195, ry: 85,  speed: 0.080, baseAngle: 0 },
+            middle: { rx: 320, ry: 135, speed: 0.052, baseAngle: Math.PI / 3 },
+            outer:  { rx: 440, ry: 185, speed: 0.035, baseAngle: (2 * Math.PI) / 3 }
         };
 
         const orbitCounts: Record<string, number> = { inner: 0, middle: 0, outer: 0 };
@@ -531,8 +531,8 @@ export default function Home() {
             const index = orbitCounts[orbitType]++;
             const angle = cfg.baseAngle + (index * (Math.PI * 2 / 3));
             
-            // Self-rotation speed: 20s to 35s per full 360deg
-            const rotDuration = 20 + (i % 4) * 4;
+            // Self-rotation speed: slow 60s to 105s tumbling per full 360deg
+            const rotDuration = 60 + (i % 4) * 15;
             const rotDir = (i % 2 === 0) ? 1 : -1;
             const meshRotSpeed = (360 / rotDuration) * rotDir;
 
@@ -1006,15 +1006,16 @@ export default function Home() {
                 <div class="universe-pic-frame" id="universePicFrame">
                     <!-- Orbit Stage (3D Coordinate Space centered at 0,0) -->
                     <div class="orbit-stage" id="orbitStage">
-                        <!-- 9 Skill Stars Floating in the Universe -->
+                        <!-- 9 Skill Asteroids Floating in the Universe -->
                         <!-- 1. Artificial Intelligence (Inner Orbit) -->
                         <div class="skill-asteroid" data-skill="ai" data-orbit="inner" role="button" tabindex="0" aria-label="Artificial Intelligence">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-neural-pulse">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path d="M18 10a6 6 0 0 1-12 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/><path d="M9 14l-4 4"/><path d="M15 14l4 4"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-neural-pulse">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path d="M18 10a6 6 0 0 1-12 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/><path d="M9 14l-4 4"/><path d="M15 14l4 4"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Artificial Intelligence</span><span class="label-bracket">]</span></div>
@@ -1028,11 +1029,12 @@ export default function Home() {
                         <!-- 2. Python (Inner Orbit) -->
                         <div class="skill-asteroid" data-skill="python" data-orbit="inner" role="button" tabindex="0" aria-label="Python">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-glow-pulse">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2c2.76 0 5 2.24 5 5v2h-4V8a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5v2H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5h5zm0 20c-2.76 0-5-2.24-5-5v-2h4v1a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5v-2h5a5 5 0 0 1 5 5v2a5 5 0 0 1-5 5h-5z"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-glow-pulse">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2c2.76 0 5 2.24 5 5v2h-4V8a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5v2H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5h5zm0 20c-2.76 0-5-2.24-5-5v-2h4v1a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5v-2h5a5 5 0 0 1 5 5v2a5 5 0 0 1-5 5h-5z"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Python</span><span class="label-bracket">]</span></div>
@@ -1046,11 +1048,12 @@ export default function Home() {
                         <!-- 3. Machine Learning (Inner Orbit) -->
                         <div class="skill-asteroid" data-skill="ml" data-orbit="inner" role="button" tabindex="0" aria-label="Machine Learning">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-network-pulse">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-network-pulse">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Machine Learning</span><span class="label-bracket">]</span></div>
@@ -1064,11 +1067,12 @@ export default function Home() {
                         <!-- 4. Full-Stack Development (Middle Orbit) -->
                         <div class="skill-asteroid" data-skill="fullstack" data-orbit="middle" role="button" tabindex="0" aria-label="Full-Stack Development">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-layers-glow">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-layers-glow">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Full-Stack Development</span><span class="label-bracket">]</span></div>
@@ -1082,11 +1086,12 @@ export default function Home() {
                         <!-- 5. Next.js (Middle Orbit) -->
                         <div class="skill-asteroid" data-skill="nextjs" data-orbit="middle" role="button" tabindex="0" aria-label="Next.js">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-edge-highlight">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm3.3 14.6l-5.6-7.3v7.3H8.2V7.4h1.6l5.7 7.4V7.4h1.5v9.2z"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-edge-highlight">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm3.3 14.6l-5.6-7.3v7.3H8.2V7.4h1.6l5.7 7.4V7.4h1.5v9.2z"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Next.js</span><span class="label-bracket">]</span></div>
@@ -1100,11 +1105,12 @@ export default function Home() {
                         <!-- 6. JavaScript (Middle Orbit) -->
                         <div class="skill-asteroid" data-skill="javascript" data-orbit="middle" role="button" tabindex="0" aria-label="JavaScript">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-brightness-pulse">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 3h18v18H3V3zm13.6 14.5c1.4 0 2.4-.8 2.4-2.1v-.1c0-1.3-.8-1.9-2.2-2.5l-.8-.3c-.7-.3-1.1-.6-1.1-1.1v-.1c0-.5.4-.9 1.1-.9.7 0 1.1.3 1.5.8l1.4-1c-.7-.9-1.6-1.4-2.9-1.4-1.7 0-2.8 1-2.8 2.4v.1c0 1.3.8 1.9 2.1 2.5l.8.3c.8.4 1.2.7 1.2 1.2v.1c0 .6-.5 1-1.3 1-.9 0-1.4-.4-1.8-1.1l-1.5 1c.7 1.2 1.8 1.8 3.3 1.8zm-6.2-.2c.8 0 1.4-.2 1.8-.7V9h-1.8v5.5c0 .6-.3.9-.8.9-.4 0-.7-.2-.9-.5l-1.3 1c.5 1 1.6 1.7 3 1.7z"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-brightness-pulse">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M3 3h18v18H3V3zm13.6 14.5c1.4 0 2.4-.8 2.4-2.1v-.1c0-1.3-.8-1.9-2.2-2.5l-.8-.3c-.7-.3-1.1-.6-1.1-1.1v-.1c0-.5.4-.9 1.1-.9.7 0 1.1.3 1.5.8l1.4-1c-.7-.9-1.6-1.4-2.9-1.4-1.7 0-2.8 1-2.8 2.4v.1c0 1.3.8 1.9 2.1 2.5l.8.3c.8.4 1.2.7 1.2 1.2v.1c0 .6-.5 1-1.3 1-.9 0-1.4-.4-1.8-1.1l-1.5 1c.7 1.2 1.8 1.8 3.3 1.8zm-6.2-.2c.8 0 1.4-.2 1.8-.7V9h-1.8v5.5c0 .6-.3.9-.8.9-.4 0-.7-.2-.9-.5l-1.3 1c.5 1 1.6 1.7 3 1.7z"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>JavaScript</span><span class="label-bracket">]</span></div>
@@ -1118,11 +1124,12 @@ export default function Home() {
                         <!-- 7. AI Automation & n8n (Outer Orbit) -->
                         <div class="skill-asteroid" data-skill="automation" data-orbit="outer" role="button" tabindex="0" aria-label="AI Automation & n8n">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-workflow-pulse">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="8.6" y1="7.4" x2="15.4" y2="7.4"/><path d="M7.7 8.5L10.3 15.5"/><path d="M16.3 8.5L13.7 15.5"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-workflow-pulse">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="8.6" y1="7.4" x2="15.4" y2="7.4"/><path d="M7.7 8.5L10.3 15.5"/><path d="M16.3 8.5L13.7 15.5"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>AI Automation &amp; n8n</span><span class="label-bracket">]</span></div>
@@ -1136,11 +1143,12 @@ export default function Home() {
                         <!-- 8. API Integration (Outer Orbit) -->
                         <div class="skill-asteroid" data-skill="api" data-orbit="outer" role="button" tabindex="0" aria-label="API Integration">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-connection-pulse">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-connection-pulse">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>API Integration</span><span class="label-bracket">]</span></div>
@@ -1154,11 +1162,12 @@ export default function Home() {
                         <!-- 9. UI/UX & Interactive Web Design (Outer Orbit) -->
                         <div class="skill-asteroid" data-skill="uiux" data-orbit="outer" role="button" tabindex="0" aria-label="UI/UX & Interactive Web Design">
                             <div class="asteroid-mesh">
-                                <div class="asteroid-facet"></div>
+                                <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
-                                <div class="asteroid-core-light"></div>
-                                <div class="asteroid-icon-wrap icon-interface-glow">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
+                                <div class="asteroid-energy-core">
+                                    <div class="asteroid-icon-wrap icon-interface-glow">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
+                                    </div>
                                 </div>
                             </div>
                             <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>UI/UX &amp; Interactive Web Design</span><span class="label-bracket">]</span></div>
