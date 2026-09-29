@@ -477,20 +477,230 @@ export default function Home() {
         });
     }
 
-    // ── 6. TECHNICAL UNIVERSE (Nano Banana Picture & 3D Interactive Hotspots) ──
+    // ── 6. TECHNICAL UNIVERSE (Living Animated Solar System Engine) ──
     function initTechnicalUniverse() {
         const container = document.getElementById('universePicContainer');
         const frame = document.getElementById('universePicFrame');
-        if (!container || !frame) return () => {};
+        const stage = document.getElementById('orbitStage');
+        const canvas = document.getElementById('universeStarCanvas') as HTMLCanvasElement | null;
+        const centralPlanet = document.getElementById('centralPlanet');
+        const connectLine = document.getElementById('coreConnectLine');
+        const connectParticle = document.getElementById('coreConnectParticle');
+        const trackInner = document.querySelector('.orbit-track.track-inner');
+        const trackMiddle = document.querySelector('.orbit-track.track-middle');
+        const trackOuter = document.querySelector('.orbit-track.track-outer');
 
-        const hotspots = Array.from(document.querySelectorAll('.skill-hotspot')) as HTMLElement[];
+        if (!container || !frame || !stage) return () => {};
+
+        const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // ── 1. Star Canvas Setup & Subtle Twinkling Loop ──
+        let starCtx: CanvasRenderingContext2D | null = null;
+        let starW = 0;
+        let starH = 0;
+        let stars: Array<{
+            x: number;
+            y: number;
+            r: number;
+            baseAlpha: number;
+            pulseSpeed: number;
+            pulsePhase: number;
+            speedX: number;
+            speedY: number;
+            color: string;
+        }> = [];
+
+        const initStarCanvas = () => {
+            if (!canvas) return;
+            starCtx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+            starW = rect.width || 800;
+            starH = rect.height || 450;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = starW * dpr;
+            canvas.height = starH * dpr;
+            if (starCtx) starCtx.scale(dpr, dpr);
+
+            stars = [];
+            const colors = ['rgba(255, 255, 255,', 'rgba(56, 189, 248,', 'rgba(192, 132, 252,', 'rgba(147, 197, 253,'];
+            for (let i = 0; i < 55; i++) {
+                stars.push({
+                    x: Math.random() * starW,
+                    y: Math.random() * starH,
+                    r: 0.6 + Math.random() * 1.3,
+                    baseAlpha: 0.2 + Math.random() * 0.55,
+                    pulseSpeed: 0.015 + Math.random() * 0.03,
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    speedX: (Math.random() - 0.5) * 0.08,
+                    speedY: (Math.random() - 0.5) * 0.08,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        };
+
+        if (canvas) {
+            initStarCanvas();
+            window.addEventListener('resize', initStarCanvas);
+        }
+
+        // ── 2. Asteroids Data & Orbital Mechanics ──
+        interface AsteroidItem {
+            el: HTMLElement;
+            mesh: HTMLElement | null;
+            orbit: 'inner' | 'middle' | 'outer';
+            rx: number;
+            ry: number;
+            baseSpeed: number;       // radians per second
+            currentSpeed: number;
+            targetSpeed: number;
+            angle: number;
+            meshRot: number;
+            meshRotSpeed: number;    // deg per sec
+            floatPhaseX: number;
+            floatPhaseY: number;
+            floatPhaseTilt: number;
+            floatAmpX: number;
+            floatAmpY: number;
+            currentX: number;
+            currentY: number;
+            isHovered: boolean;
+            isActive: boolean;
+        }
+
+        const asteroidEls = Array.from(document.querySelectorAll('.skill-asteroid')) as HTMLElement[];
+        
+        // Speeds matching spec:
+        // INNER: 22s revolution = 2*PI / 22 = 0.2855 rad/s
+        // MIDDLE: 32s revolution = 2*PI / 32 = 0.1963 rad/s
+        // OUTER: 45s revolution = 2*PI / 45 = 0.1396 rad/s
+        const orbitConfig = {
+            inner:  { rx: 145, ry: 54,  speed: 0.2855, baseAngle: 0 },
+            middle: { rx: 250, ry: 94,  speed: 0.1963, baseAngle: Math.PI / 4 },
+            outer:  { rx: 360, ry: 136, speed: 0.1396, baseAngle: Math.PI / 2 }
+        };
+
+        const orbitCounts: Record<string, number> = { inner: 0, middle: 0, outer: 0 };
+
+        const asteroids: AsteroidItem[] = asteroidEls.map((el, i) => {
+            const orbitType = (el.getAttribute('data-orbit') || 'inner') as 'inner' | 'middle' | 'outer';
+            const cfg = orbitConfig[orbitType];
+            const index = orbitCounts[orbitType]++;
+            const angle = cfg.baseAngle + (index * (Math.PI * 2 / 3));
+            
+            // Self-rotation speed: 20s to 35s per full 360deg
+            const rotDuration = 20 + (i % 4) * 4;
+            const rotDir = (i % 2 === 0) ? 1 : -1;
+            const meshRotSpeed = (360 / rotDuration) * rotDir;
+
+            return {
+                el,
+                mesh: el.querySelector('.asteroid-mesh'),
+                orbit: orbitType,
+                rx: cfg.rx,
+                ry: cfg.ry,
+                baseSpeed: cfg.speed,
+                currentSpeed: cfg.speed,
+                targetSpeed: cfg.speed,
+                angle,
+                meshRot: (i * 45) % 360,
+                meshRotSpeed,
+                floatPhaseX: Math.random() * Math.PI * 2,
+                floatPhaseY: Math.random() * Math.PI * 2,
+                floatPhaseTilt: Math.random() * Math.PI * 2,
+                floatAmpX: 2.5 + (i % 3) * 0.8,
+                floatAmpY: 3.5 + (i % 3) * 1.0,
+                currentX: 0,
+                currentY: 0,
+                isHovered: false,
+                isActive: false
+            };
+        });
+
+        let activeAsteroid: AsteroidItem | null = null;
+
+        // Track highlights helper
+        function updateTrackHighlights() {
+            const orbits = new Set<string>();
+            if (activeAsteroid) orbits.add(activeAsteroid.orbit);
+            asteroids.forEach(a => {
+                if (a.isHovered) orbits.add(a.orbit);
+            });
+
+            if (trackInner) trackInner.classList.toggle('highlighted', orbits.has('inner'));
+            if (trackMiddle) trackMiddle.classList.toggle('highlighted', orbits.has('middle'));
+            if (trackOuter) trackOuter.classList.toggle('highlighted', orbits.has('outer'));
+        }
+
+        // Asteroid events (hover, click, keyboard)
+        asteroids.forEach(item => {
+            const el = item.el;
+            el.addEventListener('mouseenter', () => {
+                item.isHovered = true;
+                item.targetSpeed = item.baseSpeed * 0.15; // smooth slow down
+                updateTrackHighlights();
+            });
+
+            el.addEventListener('mouseleave', () => {
+                item.isHovered = false;
+                item.targetSpeed = item.baseSpeed; // smooth return
+                updateTrackHighlights();
+            });
+
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (item.isActive) {
+                    item.isActive = false;
+                    el.classList.remove('active');
+                    activeAsteroid = null;
+                } else {
+                    asteroids.forEach(other => {
+                        other.isActive = false;
+                        other.el.classList.remove('active');
+                    });
+                    item.isActive = true;
+                    el.classList.add('active');
+                    activeAsteroid = item;
+
+                    // Central core pulse
+                    const halo = centralPlanet?.querySelector('.planet-atmosphere-halo') as HTMLElement;
+                    if (halo) {
+                        gsap.fromTo(halo,
+                            { scale: 1.35, opacity: 1 },
+                            { scale: 1, opacity: 0.8, duration: 0.8, ease: "power2.out" }
+                        );
+                    }
+                }
+                updateTrackHighlights();
+            });
+
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    el.click();
+                }
+            });
+        });
+
+        // Click outside dismisses active asteroid
+        const handleDocClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (!target.closest('.skill-asteroid') && !target.closest('#centralPlanet')) {
+                if (activeAsteroid) {
+                    activeAsteroid.isActive = false;
+                    activeAsteroid.el.classList.remove('active');
+                    activeAsteroid = null;
+                    updateTrackHighlights();
+                }
+            }
+        };
+        document.addEventListener('click', handleDocClick);
 
         // 3D perspective mouse tilt
         const handleMouseMove = (e: MouseEvent) => {
             const rect = container.getBoundingClientRect();
             const normX = (e.clientX - rect.left) / rect.width - 0.5;
             const normY = (e.clientY - rect.top) / rect.height - 0.5;
-            gsap.to(frame, {
+            gsap.to(stage, {
                 rotateY: normX * 8,
                 rotateX: -normY * 8,
                 duration: 0.6,
@@ -499,7 +709,7 @@ export default function Home() {
         };
 
         const handleMouseLeave = () => {
-            gsap.to(frame, {
+            gsap.to(stage, {
                 rotateY: 0,
                 rotateX: 0,
                 duration: 1.0,
@@ -510,50 +720,239 @@ export default function Home() {
         container.addEventListener('mousemove', handleMouseMove);
         container.addEventListener('mouseleave', handleMouseLeave);
 
-        // Click outside to dismiss active hotspot
-        const handleDocClick = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (!target.closest('.skill-hotspot')) {
-                hotspots.forEach(h => h.classList.remove('active'));
-            }
+        // Responsive orbit scale calculation
+        const getScale = () => {
+            const w = frame.clientWidth;
+            if (w < 480) return 0.52;
+            if (w < 768) return 0.68;
+            if (w < 1024) return 0.85;
+            return 1.0;
         };
-        document.addEventListener('click', handleDocClick);
 
-        // Hotspot click / keyboard toggle
-        hotspots.forEach(h => {
-            h.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const wasActive = h.classList.contains('active');
-                hotspots.forEach(other => other.classList.remove('active'));
-                if (!wasActive) h.classList.add('active');
-            });
+        // ── 3. Unified Animation Loop ──
+        let animFrameId: number;
+        let lastTime = performance.now();
 
-            h.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    h.click();
+        const render = (time: number) => {
+            const dt = Math.min((time - lastTime) / 1000, 0.1); // in seconds
+            lastTime = time;
+
+            // Render Stars
+            if (starCtx && stars.length > 0) {
+                starCtx.clearRect(0, 0, starW, starH);
+                for (let i = 0; i < stars.length; i++) {
+                    const s = stars[i];
+                    s.pulsePhase += s.pulseSpeed;
+                    s.x += s.speedX;
+                    s.y += s.speedY;
+                    if (s.x < 0) s.x = starW;
+                    if (s.x > starW) s.x = 0;
+                    if (s.y < 0) s.y = starH;
+                    if (s.y > starH) s.y = 0;
+
+                    const alpha = Math.max(0.1, Math.min(1, s.baseAlpha + Math.sin(s.pulsePhase) * 0.28));
+                    starCtx.beginPath();
+                    starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    starCtx.fillStyle = s.color + alpha.toFixed(3) + ')';
+                    starCtx.fill();
+                }
+            }
+
+            // Render Asteroids
+            const currentScaleFactor = getScale();
+
+            asteroids.forEach(item => {
+                // Smooth speed interpolation
+                item.currentSpeed += (item.targetSpeed - item.currentSpeed) * (dt * 6);
+
+                if (!prefersReducedMotion) {
+                    item.angle += item.currentSpeed * dt;
+                    item.meshRot = (item.meshRot + item.meshRotSpeed * dt) % 360;
+                }
+
+                const cos = Math.cos(item.angle);
+                const sin = Math.sin(item.angle);
+
+                // Scaled radii
+                const rx = item.rx * currentScaleFactor;
+                const ry = item.ry * currentScaleFactor;
+
+                // Elliptical coordinate
+                const baseX = rx * cos;
+                const baseY = ry * sin;
+
+                // Organic float offset
+                const tSec = time * 0.001;
+                const fx = item.floatAmpX * Math.sin(tSec * 1.2 + item.floatPhaseX);
+                const fy = item.floatAmpY * Math.cos(tSec * 1.4 + item.floatPhaseY);
+                const tilt = 3 * Math.sin(tSec * 1.0 + item.floatPhaseTilt);
+
+                item.currentX = baseX + fx;
+                item.currentY = baseY + fy;
+
+                // Pseudo-3D Depth
+                // sin: -1 (top/back) to +1 (bottom/front)
+                const depth = (sin + 1) / 2; // 0 to 1
+                const baseScale = 0.80 + depth * 0.20;
+                const scale = (item.isHovered || item.isActive) ? baseScale * 1.15 : baseScale;
+                const opacity = (item.isHovered || item.isActive) ? 1.0 : (0.70 + depth * 0.30);
+                const zIndex = (item.isHovered || item.isActive) ? 150 : (sin >= 0 ? 35 : 12);
+
+                // Apply asteroid position and scale
+                item.el.style.transform = `translate3d(calc(-50% + ${item.currentX.toFixed(2)}px), calc(-50% + ${item.currentY.toFixed(2)}px), 0px) scale(${scale.toFixed(3)})`;
+                item.el.style.opacity = opacity.toFixed(3);
+                item.el.style.zIndex = zIndex.toString();
+
+                // Rotate ONLY the mesh (keeps label perfectly upright!)
+                if (item.mesh) {
+                    item.mesh.style.transform = `rotate(${item.meshRot.toFixed(1)}deg) rotateZ(${tilt.toFixed(1)}deg)`;
+                }
+
+                // Tooltip auto-flip if in upper half
+                const tooltip = item.el.querySelector('.asteroid-tooltip');
+                if (tooltip) {
+                    tooltip.classList.toggle('tooltip-down', sin < -0.3);
                 }
             });
+
+            // Update Active Connection Beam & Traveling Particle
+            if (connectLine && connectParticle) {
+                if (activeAsteroid) {
+                    connectLine.setAttribute('x1', activeAsteroid.currentX.toFixed(2));
+                    connectLine.setAttribute('y1', activeAsteroid.currentY.toFixed(2));
+                    connectLine.setAttribute('x2', '0');
+                    connectLine.setAttribute('y2', '0');
+                    connectLine.setAttribute('opacity', '0.9');
+
+                    // Traveling pulse from asteroid (x,y) toward central planet (0,0)
+                    const pulseP = (time * 0.00085) % 1;
+                    const px = activeAsteroid.currentX * (1 - pulseP);
+                    const py = activeAsteroid.currentY * (1 - pulseP);
+                    connectParticle.setAttribute('cx', px.toFixed(2));
+                    connectParticle.setAttribute('cy', py.toFixed(2));
+                    connectParticle.setAttribute('opacity', '1');
+                } else {
+                    connectLine.setAttribute('opacity', '0');
+                    connectParticle.setAttribute('opacity', '0');
+                }
+            }
+
+            animFrameId = requestAnimationFrame(render);
+        };
+
+        animFrameId = requestAnimationFrame(render);
+
+        // ── 4. Section Entry Sequence & Parallax (GSAP ScrollTrigger) ──
+        const headerEl = document.getElementById('universeHeader');
+        const tracksEl = document.querySelectorAll('.orbit-track, .orbit-energy-pulse');
+        const innerAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="inner"]');
+        const middleAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="middle"]');
+        const outerAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="outer"]');
+
+        const entryTl = gsap.timeline({
+            scrollTrigger: {
+                trigger: "#skills",
+                start: "top 75%",
+                toggleActions: "play none none reverse"
+            }
         });
 
-        // ScrollTrigger entrance reveal
-        gsap.fromTo(frame,
-            { opacity: 0, scale: 0.88, y: 25 },
-            {
-                opacity: 1,
-                scale: 1,
-                y: 0,
-                duration: 1.2,
-                ease: "power2.out",
-                scrollTrigger: {
-                    trigger: "#skills",
-                    start: "top 80%",
-                    toggleActions: "play none none reverse"
-                }
-            }
+        // 0.2s: Title fades/slides upward
+        if (headerEl) {
+            entryTl.fromTo(headerEl,
+                { opacity: 0, y: 22 },
+                { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
+                0.2
+            );
+        }
+
+        // 0.4s: Central planet corona/atmosphere glow
+        entryTl.fromTo('.planet-corona-outer, .planet-atmosphere-halo',
+            { opacity: 0, scale: 0.7 },
+            { opacity: 1, scale: 1, duration: 1.0, ease: "power2.out" },
+            0.4
         );
 
+        // 0.7s: Planet scales from 0.90 -> 1.00
+        if (centralPlanet) {
+            entryTl.fromTo(centralPlanet,
+                { opacity: 0, scale: 0.88 },
+                { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.4)" },
+                0.7
+            );
+        }
+
+        // 1.0s: Orbital paths draw on
+        if (tracksEl.length > 0) {
+            entryTl.fromTo(tracksEl,
+                { opacity: 0 },
+                { opacity: 0.75, duration: 0.8, ease: "power2.out" },
+                1.0
+            );
+        }
+
+        // 1.3s: Inner 3 asteroids appear
+        if (innerAsteroids.length > 0) {
+            entryTl.fromTo(innerAsteroids,
+                { scale: 0.4, opacity: 0 },
+                { scale: 1, opacity: 1, stagger: 0.08, duration: 0.6, ease: "back.out(1.2)" },
+                1.3
+            );
+        }
+
+        // 1.5s: Middle 3 asteroids appear
+        if (middleAsteroids.length > 0) {
+            entryTl.fromTo(middleAsteroids,
+                { scale: 0.4, opacity: 0 },
+                { scale: 1, opacity: 1, stagger: 0.08, duration: 0.6, ease: "back.out(1.2)" },
+                1.5
+            );
+        }
+
+        // 1.7s: Outer 3 asteroids appear
+        if (outerAsteroids.length > 0) {
+            entryTl.fromTo(outerAsteroids,
+                { scale: 0.4, opacity: 0 },
+                { scale: 1, opacity: 1, stagger: 0.08, duration: 0.6, ease: "back.out(1.2)" },
+                1.7
+            );
+        }
+
+        // Scroll Parallax
+        gsap.to('.universe-nebula-layer', {
+            y: 25,
+            ease: "none",
+            scrollTrigger: {
+                trigger: "#skills",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1.2
+            }
+        });
+        gsap.to('#universeStarCanvas', {
+            y: 18,
+            ease: "none",
+            scrollTrigger: {
+                trigger: "#skills",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.8
+            }
+        });
+        gsap.to(stage, {
+            y: 10,
+            ease: "none",
+            scrollTrigger: {
+                trigger: "#skills",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1
+            }
+        });
+
         return () => {
+            cancelAnimationFrame(animFrameId);
+            if (canvas) window.removeEventListener('resize', initStarCanvas);
             document.removeEventListener('click', handleDocClick);
             container.removeEventListener('mousemove', handleMouseMove);
             container.removeEventListener('mouseleave', handleMouseLeave);
@@ -774,118 +1173,233 @@ export default function Home() {
                 </p>
             </div>
 
-            <!-- Universe Picture Container (Nano Banana Masterpiece) -->
+            <!-- Universe Viewport Frame (Living Animated Solar System) -->
             <div class="universe-pic-container" id="universePicContainer">
                 <div class="universe-pic-frame" id="universePicFrame">
-                    <img src="/technical-universe.jpg" alt="My Technical Universe - 9 Technologies Solar System" class="universe-pic-img" id="universePicImg" />
-                    <div class="universe-pic-glow-overlay"></div>
+                    <!-- Background Layers: Drifting Nebula + Star Canvas -->
+                    <div class="universe-nebula-layer" id="universeNebula"></div>
+                    <canvas class="universe-star-canvas" id="universeStarCanvas" aria-hidden="true"></canvas>
 
-                    <!-- 1. Central Core AI Planet -->
-                    <div class="skill-hotspot" style="left: 50%; top: 53.5%;" data-skill="core" role="button" tabindex="0" aria-label="Core Technology">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">SYSTEM CORE</span>
-                            <div class="hotspot-title font-heading">AI • Software • Automation</div>
-                            <div class="hotspot-desc">Autonomous intelligence systems, full-stack architecture, and unified API automation pipelines.</div>
-                        </div>
-                    </div>
+                    <!-- Orbit Stage (3D Coordinate Space centered at 0,0) -->
+                    <div class="orbit-stage" id="orbitStage">
+                        <!-- SVG Tracks & Connection Lines -->
+                        <svg class="orbit-tracks-svg" id="orbitTracksSvg" viewBox="-420 -170 840 340" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="orbitGlowInner" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="rgba(56, 189, 248, 0.6)"/>
+                                    <stop offset="50%" stop-color="rgba(168, 85, 247, 0.45)"/>
+                                    <stop offset="100%" stop-color="rgba(56, 189, 248, 0.3)"/>
+                                </linearGradient>
+                                <linearGradient id="orbitGlowMid" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="rgba(56, 189, 248, 0.5)"/>
+                                    <stop offset="50%" stop-color="rgba(147, 197, 253, 0.35)"/>
+                                    <stop offset="100%" stop-color="rgba(168, 85, 247, 0.35)"/>
+                                </linearGradient>
+                                <linearGradient id="orbitGlowOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="rgba(99, 102, 241, 0.5)"/>
+                                    <stop offset="50%" stop-color="rgba(56, 189, 248, 0.4)"/>
+                                    <stop offset="100%" stop-color="rgba(147, 197, 253, 0.35)"/>
+                                </linearGradient>
+                                <filter id="energyGlow" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+                                    <feMerge>
+                                        <feMergeNode in="blur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
 
-                    <!-- 2. Artificial Intelligence -->
-                    <div class="skill-hotspot" style="left: 35.8%; top: 53.5%;" data-skill="ai" role="button" tabindex="0" aria-label="Artificial Intelligence">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">INNER ORBIT</span>
-                            <div class="hotspot-title font-heading">Artificial Intelligence</div>
-                            <div class="hotspot-desc">Architecting autonomous LLM agents, multi-agent orchestrations, and multimodal GenAI systems.</div>
-                        </div>
-                    </div>
-                    <!-- 3. Python -->
-                    <div class="skill-hotspot" style="left: 61.6%; top: 50%;" data-skill="python" role="button" tabindex="0" aria-label="Python">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">INNER ORBIT</span>
-                            <div class="hotspot-title font-heading">Python</div>
-                            <div class="hotspot-desc">High-performance backend systems, asynchronous pipelines, data engineering, and AI model workflows.</div>
-                        </div>
-                    </div>
+                            <!-- Base subtle elliptical tracks -->
+                            <ellipse class="orbit-track track-inner" cx="0" cy="0" rx="145" ry="54" />
+                            <ellipse class="orbit-track track-middle" cx="0" cy="0" rx="250" ry="94" />
+                            <ellipse class="orbit-track track-outer" cx="0" cy="0" rx="360" ry="136" />
 
-                    <!-- 4. Machine Learning -->
-                    <div class="skill-hotspot" style="left: 52.3%; top: 66.5%;" data-skill="ml" role="button" tabindex="0" aria-label="Machine Learning">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">INNER ORBIT</span>
-                            <div class="hotspot-title font-heading">Machine Learning</div>
-                            <div class="hotspot-desc">End-to-end model training, fine-tuning, embeddings, vector search, and predictive analytics.</div>
-                        </div>
-                    </div>
+                            <!-- Continuous energy pulse loops -->
+                            <ellipse class="orbit-energy-pulse energy-inner" cx="0" cy="0" rx="145" ry="54" />
+                            <ellipse class="orbit-energy-pulse energy-middle" cx="0" cy="0" rx="250" ry="94" />
+                            <ellipse class="orbit-energy-pulse energy-outer" cx="0" cy="0" rx="360" ry="136" />
 
-                    <!-- 5. Full-Stack Development -->
-                    <div class="skill-hotspot" style="left: 25.8%; top: 56.5%;" data-skill="fullstack" role="button" tabindex="0" aria-label="Full-Stack Development">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">MIDDLE ORBIT</span>
-                            <div class="hotspot-title font-heading">Full-Stack Development</div>
-                            <div class="hotspot-desc">Building scalable modern applications from responsive reactive frontends to robust cloud backends.</div>
-                        </div>
-                    </div>
+                            <!-- Active Skill -> Central Core Connection Beam -->
+                            <line class="core-connect-line" id="coreConnectLine" x1="0" y1="0" x2="0" y2="0" opacity="0" />
+                            <circle class="core-connect-particle" id="coreConnectParticle" cx="0" cy="0" r="3.5" opacity="0" />
+                        </svg>
 
-                    <!-- 6. Next.js -->
-                    <div class="skill-hotspot" style="left: 66.5%; top: 45.5%;" data-skill="nextjs" role="button" tabindex="0" aria-label="Next.js">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">MIDDLE ORBIT</span>
-                            <div class="hotspot-title font-heading">Next.js</div>
-                            <div class="hotspot-desc">Server Components, App Router, static generation, streaming SSR, and edge compute performance.</div>
+                        <!-- Central AI Planet (Floating, Breathing, Light Sweep, Interactive) -->
+                        <div class="central-planet" id="centralPlanet" role="button" tabindex="0" aria-label="Core Technology: AI, Software, Automation">
+                            <div class="planet-corona-outer"></div>
+                            <div class="planet-atmosphere-halo"></div>
+                            <div class="planet-sphere">
+                                <img src="/core-planet.png" alt="AI Core Planet" class="planet-img" />
+                                <div class="planet-light-sweep"></div>
+                                <div class="planet-rim-glow"></div>
+                            </div>
+                            <div class="planet-core-label font-body">
+                                <span class="core-tag font-heading">CORE TECHNOLOGY</span>
+                                <span class="core-tech font-heading">AI • SOFTWARE • AUTOMATION</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 7. JavaScript -->
-                    <div class="skill-hotspot" style="left: 58.2%; top: 72%;" data-skill="javascript" role="button" tabindex="0" aria-label="JavaScript">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">MIDDLE ORBIT</span>
-                            <div class="hotspot-title font-heading">JavaScript</div>
-                            <div class="hotspot-desc">Modern ESNext, asynchronous runtime mechanics, DOM manipulation, and interactive dynamic experiences.</div>
+                        <!-- 9 Orbiting Skill Asteroids -->
+                        <!-- 1. Artificial Intelligence (Inner Orbit) -->
+                        <div class="skill-asteroid" data-skill="ai" data-orbit="inner" role="button" tabindex="0" aria-label="Artificial Intelligence">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-neural-pulse">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path d="M18 10a6 6 0 0 1-12 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/><path d="M9 14l-4 4"/><path d="M15 14l4 4"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Artificial Intelligence</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">INNER ORBIT</span>
+                                <div class="tooltip-title font-heading">Artificial Intelligence</div>
+                                <div class="tooltip-desc">Deep neural networks, LLMs, prompt engineering, and agentic autonomous systems.</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 8. AI Automation & n8n -->
-                    <div class="skill-hotspot" style="left: 19.5%; top: 47%;" data-skill="automation" role="button" tabindex="0" aria-label="AI Automation & n8n">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">OUTER ORBIT</span>
-                            <div class="hotspot-title font-heading">AI Automation &amp; n8n</div>
-                            <div class="hotspot-desc">Designing autonomous trigger-action workflows, custom webhooks, and enterprise pipeline integrations.</div>
+                        <!-- 2. Python (Inner Orbit) -->
+                        <div class="skill-asteroid" data-skill="python" data-orbit="inner" role="button" tabindex="0" aria-label="Python">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-glow-pulse">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2c2.76 0 5 2.24 5 5v2h-4V8a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5v2H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5h5zm0 20c-2.76 0-5-2.24-5-5v-2h4v1a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5v-2h5a5 5 0 0 1 5 5v2a5 5 0 0 1-5 5h-5z"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Python</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">INNER ORBIT</span>
+                                <div class="tooltip-title font-heading">Python</div>
+                                <div class="tooltip-desc">Core language for AI models, PyTorch, FastAPI microservices, and high-performance data processing.</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 9. API Integration -->
-                    <div class="skill-hotspot" style="left: 79.2%; top: 45%;" data-skill="api" role="button" tabindex="0" aria-label="API Integration">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body shift-left">
-                            <span class="hotspot-category font-heading">OUTER ORBIT</span>
-                            <div class="hotspot-title font-heading">API Integration</div>
-                            <div class="hotspot-desc">Bridging distributed REST, GraphQL, and streaming WebSocket APIs into unified, fault-tolerant pipelines.</div>
+                        <!-- 3. Machine Learning (Inner Orbit) -->
+                        <div class="skill-asteroid" data-skill="ml" data-orbit="inner" role="button" tabindex="0" aria-label="Machine Learning">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-network-pulse">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Machine Learning</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">INNER ORBIT</span>
+                                <div class="tooltip-title font-heading">Machine Learning</div>
+                                <div class="tooltip-desc">Predictive modeling, scikit-learn, supervised/unsupervised learning, and feature engineering.</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 10. UI/UX & Interactive Web Design -->
-                    <div class="skill-hotspot" style="left: 51%; top: 81%;" data-skill="uiux" role="button" tabindex="0" aria-label="UI/UX & Interactive Web Design">
-                        <div class="hotspot-pulse-ring"></div>
-                        <div class="hotspot-dot"></div>
-                        <div class="hotspot-tooltip font-body">
-                            <span class="hotspot-category font-heading">OUTER ORBIT</span>
-                            <div class="hotspot-title font-heading">UI/UX &amp; Interactive Web Design</div>
-                            <div class="hotspot-desc">Crafting fluid micro-animations, glassmorphic spatial layouts, and human-centered design systems.</div>
+                        <!-- 4. Full-Stack Development (Middle Orbit) -->
+                        <div class="skill-asteroid" data-skill="fullstack" data-orbit="middle" role="button" tabindex="0" aria-label="Full-Stack Development">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-layers-glow">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Full-Stack Development</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">MIDDLE ORBIT</span>
+                                <div class="tooltip-title font-heading">Full-Stack Development</div>
+                                <div class="tooltip-desc">End-to-end architectures connecting performant frontend clients with scalable, secure cloud backends.</div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Next.js (Middle Orbit) -->
+                        <div class="skill-asteroid" data-skill="nextjs" data-orbit="middle" role="button" tabindex="0" aria-label="Next.js">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-edge-highlight">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm3.3 14.6l-5.6-7.3v7.3H8.2V7.4h1.6l5.7 7.4V7.4h1.5v9.2z"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Next.js</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">MIDDLE ORBIT</span>
+                                <div class="tooltip-title font-heading">Next.js</div>
+                                <div class="tooltip-desc">Production framework with Turbopack, App Router, SSR, Server Actions, and edge optimizations.</div>
+                            </div>
+                        </div>
+
+                        <!-- 6. JavaScript (Middle Orbit) -->
+                        <div class="skill-asteroid" data-skill="javascript" data-orbit="middle" role="button" tabindex="0" aria-label="JavaScript">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-brightness-pulse">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M3 3h18v18H3V3zm13.6 14.5c1.4 0 2.4-.8 2.4-2.1v-.1c0-1.3-.8-1.9-2.2-2.5l-.8-.3c-.7-.3-1.1-.6-1.1-1.1v-.1c0-.5.4-.9 1.1-.9.7 0 1.1.3 1.5.8l1.4-1c-.7-.9-1.6-1.4-2.9-1.4-1.7 0-2.8 1-2.8 2.4v.1c0 1.3.8 1.9 2.1 2.5l.8.3c.8.4 1.2.7 1.2 1.2v.1c0 .6-.5 1-1.3 1-.9 0-1.4-.4-1.8-1.1l-1.5 1c.7 1.2 1.8 1.8 3.3 1.8zm-6.2-.2c.8 0 1.4-.2 1.8-.7V9h-1.8v5.5c0 .6-.3.9-.8.9-.4 0-.7-.2-.9-.5l-1.3 1c.5 1 1.6 1.7 3 1.7z"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>JavaScript</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">MIDDLE ORBIT</span>
+                                <div class="tooltip-title font-heading">JavaScript</div>
+                                <div class="tooltip-desc">Modern ES6+ asynchronous programming, event-driven architectures, and rich interactive interfaces.</div>
+                            </div>
+                        </div>
+
+                        <!-- 7. AI Automation & n8n (Outer Orbit) -->
+                        <div class="skill-asteroid" data-skill="automation" data-orbit="outer" role="button" tabindex="0" aria-label="AI Automation & n8n">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-workflow-pulse">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="8.6" y1="7.4" x2="15.4" y2="7.4"/><path d="M7.7 8.5L10.3 15.5"/><path d="M16.3 8.5L13.7 15.5"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>AI Automation &amp; n8n</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">OUTER ORBIT</span>
+                                <div class="tooltip-title font-heading">AI Automation &amp; n8n</div>
+                                <div class="tooltip-desc">Designing autonomous trigger-action workflows, custom webhooks, and enterprise pipeline integrations.</div>
+                            </div>
+                        </div>
+
+                        <!-- 8. API Integration (Outer Orbit) -->
+                        <div class="skill-asteroid" data-skill="api" data-orbit="outer" role="button" tabindex="0" aria-label="API Integration">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-connection-pulse">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>API Integration</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">OUTER ORBIT</span>
+                                <div class="tooltip-title font-heading">API Integration</div>
+                                <div class="tooltip-desc">Bridging distributed REST, GraphQL, and streaming WebSocket APIs into unified, fault-tolerant pipelines.</div>
+                            </div>
+                        </div>
+
+                        <!-- 9. UI/UX & Interactive Web Design (Outer Orbit) -->
+                        <div class="skill-asteroid" data-skill="uiux" data-orbit="outer" role="button" tabindex="0" aria-label="UI/UX & Interactive Web Design">
+                            <div class="asteroid-mesh">
+                                <div class="asteroid-facet"></div>
+                                <div class="asteroid-glow-ring"></div>
+                                <div class="asteroid-core-light"></div>
+                                <div class="asteroid-icon-wrap icon-interface-glow">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
+                                </div>
+                            </div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>UI/UX &amp; Interactive Web Design</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-tooltip font-body">
+                                <span class="tooltip-category font-heading">OUTER ORBIT</span>
+                                <div class="tooltip-title font-heading">UI/UX &amp; Interactive Web Design</div>
+                                <div class="tooltip-desc">Crafting fluid micro-animations, glassmorphic spatial layouts, and human-centered design systems.</div>
+                            </div>
                         </div>
                     </div>
                 </div>

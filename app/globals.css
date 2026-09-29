@@ -1248,7 +1248,7 @@
             font-weight: 400;
         }
 
-        /* ── Nano Banana Technical Universe Showcase ── */
+        /* ── Animated Technical Universe Solar System ── */
         .universe-pic-container {
             position: relative;
             width: 100%;
@@ -1275,7 +1275,8 @@
                 inset 0 0 0 1px rgba(130, 185, 255, 0.4);
             background: #020617;
             transform-style: preserve-3d;
-            transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.4s ease;
+            transition: box-shadow 0.4s ease;
+            overflow: hidden;
         }
 
         .universe-pic-frame:hover {
@@ -1285,118 +1286,497 @@
                 inset 0 0 0 1.5px rgba(130, 185, 255, 0.6);
         }
 
-        .universe-pic-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 18px;
-            display: block;
+        /* ── Drifting Cosmic Nebula Layer ── */
+        .universe-nebula-layer {
+            position: absolute;
+            inset: -15%;
+            width: 130%;
+            height: 130%;
+            background:
+                radial-gradient(ellipse at 25% 35%, rgba(14, 116, 144, 0.28) 0%, transparent 55%),
+                radial-gradient(ellipse at 75% 65%, rgba(126, 34, 206, 0.22) 0%, transparent 55%),
+                radial-gradient(ellipse at 50% 50%, rgba(3, 105, 161, 0.16) 0%, transparent 60%);
+            mix-blend-mode: screen;
             pointer-events: none;
+            z-index: 1;
+            animation: nebulaDrift 45s ease-in-out infinite alternate;
         }
 
-        .universe-pic-glow-overlay {
+        @keyframes nebulaDrift {
+            0% { transform: translate(0%, 0%) scale(1); }
+            50% { transform: translate(-3%, 2%) scale(1.03); }
+            100% { transform: translate(2%, -3%) scale(0.98); }
+        }
+
+        /* ── Twinkling Ambient Starfield Canvas ── */
+        .universe-star-canvas {
             position: absolute;
             inset: 0;
-            border-radius: 18px;
-            background: radial-gradient(circle at 50% 53%, rgba(56, 189, 248, 0.16) 0%, transparent 60%);
+            width: 100%;
+            height: 100%;
             pointer-events: none;
             mix-blend-mode: screen;
-            animation: picPulse 4s ease-in-out infinite alternate;
+            z-index: 2;
+            opacity: 0.85;
         }
 
-        @keyframes picPulse {
-            0% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-
-        /* ── Interactive Skill Hotspots on the Picture ── */
-        .skill-hotspot {
+        /* ── Orbit Stage (3D Coordinate System) ── */
+        .orbit-stage {
             position: absolute;
-            width: 36px;
-            height: 36px;
-            margin-left: -18px;
-            margin-top: -18px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 10;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            outline: none;
-            touch-action: manipulation;
+            transform-style: preserve-3d;
+            z-index: 5;
+            transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
-        .hotspot-pulse-ring {
+        /* ── SVG Orbit Tracks & Traveling Energy Pulses ── */
+        .orbit-tracks-svg {
             position: absolute;
-            inset: -4px;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 4;
+        }
+
+        .orbit-track {
+            fill: none;
+            stroke-width: 1.2px;
+            stroke-dasharray: 4 6;
+            opacity: 0.4;
+            transition: opacity 0.4s ease, stroke-width 0.4s ease, filter 0.4s ease;
+        }
+        .track-inner { stroke: url(#orbitGlowInner); }
+        .track-middle { stroke: url(#orbitGlowMid); }
+        .track-outer { stroke: url(#orbitGlowOuter); }
+
+        .orbit-track.highlighted {
+            opacity: 0.95;
+            stroke-width: 2px;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.85));
+            stroke-dasharray: none;
+        }
+
+        /* Continuous Energy Pulses traveling along orbits */
+        .orbit-energy-pulse {
+            fill: none;
+            stroke-width: 2.2px;
+            stroke-linecap: round;
+            opacity: 0.75;
+            filter: url(#energyGlow);
+            pointer-events: none;
+        }
+        .energy-inner {
+            stroke: #38bdf8;
+            stroke-dasharray: 40 320;
+            animation: energyPulseInner 14s linear infinite;
+        }
+        .energy-middle {
+            stroke: #c084fc;
+            stroke-dasharray: 55 520;
+            animation: energyPulseMiddle 20s linear infinite;
+        }
+        .energy-outer {
+            stroke: #60a5fa;
+            stroke-dasharray: 75 720;
+            animation: energyPulseOuter 28s linear infinite;
+        }
+
+        @keyframes energyPulseInner {
+            from { stroke-dashoffset: 720; }
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes energyPulseMiddle {
+            from { stroke-dashoffset: 1150; }
+            to { stroke-dashoffset: 0; }
+        }
+        @keyframes energyPulseOuter {
+            from { stroke-dashoffset: 1600; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* ── Dynamic Skill-to-Core Connection Beam ── */
+        .core-connect-line {
+            stroke: url(#orbitGlowInner);
+            stroke-width: 1.8px;
+            stroke-dasharray: 4 3;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.95));
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .core-connect-particle {
+            fill: #ffffff;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 1)) drop-shadow(0 0 15px rgba(168, 85, 247, 0.9));
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        /* ── Central AI Planet ── */
+        .central-planet {
+            position: absolute;
+            width: 105px;
+            height: 105px;
             border-radius: 50%;
-            border: 1.5px solid rgba(56, 189, 248, 0.65);
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.55);
-            animation: hotspotRingPulse 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            cursor: pointer;
+            animation: planetFloat 6s ease-in-out infinite, planetBreathe 7s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        @keyframes planetFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        @keyframes planetBreathe {
+            0%, 100% { scale: 1.0; }
+            50% { scale: 1.025; }
+        }
+
+        .planet-corona-outer {
+            position: absolute;
+            inset: -32px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, rgba(168, 85, 247, 0.25) 42%, rgba(56, 189, 248, 0.08) 62%, transparent 75%);
+            filter: blur(16px);
+            pointer-events: none;
+            animation: planetCoronaPulse 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes planetCoronaPulse {
+            0% { transform: scale(0.96); opacity: 0.7; }
+            100% { transform: scale(1.08); opacity: 0.95; }
+        }
+
+        .planet-atmosphere-halo {
+            position: absolute;
+            inset: -12px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.55) 0%, rgba(147, 197, 253, 0.3) 50%, transparent 70%);
+            filter: blur(8px);
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+
+        .planet-sphere {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow:
+                0 0 35px rgba(56, 189, 248, 0.65),
+                0 0 70px rgba(168, 85, 247, 0.35),
+                inset 0 0 22px rgba(56, 189, 248, 0.85);
+            border: 1.5px solid rgba(147, 197, 253, 0.65);
+            background: #020617;
+        }
+
+        .planet-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+            animation: planetCircuitSpin 120s linear infinite;
+            filter: brightness(1.1) contrast(1.15);
+        }
+
+        @keyframes planetCircuitSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Slow light sweep across the planet surface */
+        .planet-light-sweep {
+            position: absolute;
+            inset: -50%;
+            background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.28) 50%, transparent 60%);
+            transform: rotate(25deg) translateX(-100%);
+            animation: planetSweep 8s ease-in-out infinite;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        @keyframes planetSweep {
+            0%, 25% { transform: rotate(25deg) translateX(-120%); }
+            55%, 100% { transform: rotate(25deg) translateX(120%); }
+        }
+
+        .planet-rim-glow {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            box-shadow: inset 0 0 16px rgba(56, 189, 248, 0.7);
+            pointer-events: none;
+        }
+
+        .planet-core-label {
+            position: absolute;
+            top: calc(100% + 8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .core-tag {
+            font-size: 0.52rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: #a855f7;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
+        }
+
+        .core-tech {
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #e2e8f0;
+            margin-top: 1px;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+        }
+
+        /* ── Orbiting Skill Asteroids ── */
+        .skill-asteroid {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            will-change: transform, opacity;
+            z-index: 10;
+            pointer-events: auto;
+            touch-action: manipulation;
+            outline: none;
+        }
+
+        .asteroid-mesh {
+            width: 42px;
+            height: 42px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: box-shadow 0.3s ease;
+            will-change: transform;
+        }
+
+        .asteroid-facet {
+            position: absolute;
+            inset: 0;
+            clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+            background: linear-gradient(135deg, rgba(20, 38, 75, 0.92) 0%, rgba(8, 12, 28, 0.98) 100%);
+            border: 1.2px solid rgba(147, 197, 253, 0.55);
+            box-shadow:
+                0 0 16px rgba(56, 189, 248, 0.4),
+                inset 0 0 12px rgba(168, 85, 247, 0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: box-shadow 0.3s, border-color 0.3s;
+        }
+
+        .asteroid-glow-ring {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, rgba(168, 85, 247, 0.25) 50%, transparent 72%);
+            filter: blur(4px);
+            pointer-events: none;
+            opacity: 0.75;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .asteroid-core-light {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 0 8px #38bdf8, 0 0 14px #a855f7;
+            pointer-events: none;
+        }
+
+        .asteroid-icon-wrap {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6));
+            transition: color 0.3s ease, filter 0.3s ease;
+        }
+
+        /* ── 9 Skill Icon Ambient Animations ── */
+        .icon-neural-pulse {
+            animation: animNeural 3s ease-in-out infinite;
+        }
+        @keyframes animNeural {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.4)); opacity: 0.9; }
+            50% { filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9)); opacity: 1; transform: scale(1.04); }
+        }
+
+        .icon-glow-pulse {
+            animation: animGlow 3.5s ease-in-out infinite;
+        }
+        @keyframes animGlow {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(250, 204, 21, 0.3)); }
+            50% { filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.85)); }
+        }
+
+        .icon-network-pulse {
+            animation: animNetwork 2.8s ease-in-out infinite;
+        }
+        @keyframes animNetwork {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.8)); }
+        }
+
+        .icon-layers-glow {
+            animation: animLayers 4s ease-in-out infinite;
+        }
+        @keyframes animLayers {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.3)); }
+            50% { filter: drop-shadow(0 0 6px rgba(147, 197, 253, 0.8)); }
+        }
+
+        .icon-edge-highlight {
+            animation: animEdge 3.2s ease-in-out infinite;
+        }
+        @keyframes animEdge {
+            0%, 100% { filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.4)); }
+            50% { filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.85)); }
+        }
+
+        .icon-brightness-pulse {
+            animation: animBrightness 2.5s ease-in-out infinite;
+        }
+        @keyframes animBrightness {
+            0%, 100% { filter: brightness(0.95); }
+            50% { filter: brightness(1.25) drop-shadow(0 0 5px rgba(250, 204, 21, 0.7)); }
+        }
+
+        .icon-workflow-pulse {
+            animation: animWorkflow 4s ease-in-out infinite;
+        }
+        @keyframes animWorkflow {
+            0%, 100% { transform: rotate(0deg); filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.4)); }
+            50% { transform: rotate(3deg); filter: drop-shadow(0 0 7px rgba(168, 85, 247, 0.8)); }
+        }
+
+        .icon-connection-pulse {
+            animation: animConnection 3.2s ease-in-out infinite;
+        }
+        @keyframes animConnection {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.4)); }
+            50% { transform: scale(1.06); filter: drop-shadow(0 0 7px rgba(96, 165, 250, 0.85)); }
+        }
+
+        .icon-interface-glow {
+            animation: animInterface 4.5s ease-in-out infinite;
+        }
+        @keyframes animInterface {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(168, 85, 247, 0.4)); }
+            50% { filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.8)); }
+        }
+
+        /* ── Upright Skill Label ── */
+        .asteroid-label {
+            margin-top: 5px;
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: rgba(220, 235, 255, 0.95);
+            background: rgba(8, 16, 40, 0.88);
+            border: 1px solid rgba(130, 185, 255, 0.35);
+            border-radius: 999px;
+            padding: 2px 7px;
+            white-space: nowrap;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 10px rgba(56, 189, 248, 0.25);
             pointer-events: none;
             transition: all 0.3s ease;
         }
 
-        @keyframes hotspotRingPulse {
-            0% { transform: scale(0.85); opacity: 0.8; }
-            50% { transform: scale(1.18); opacity: 0.35; }
-            100% { transform: scale(0.85); opacity: 0.8; }
+        .label-bracket {
+            color: #38bdf8;
+            opacity: 0.8;
+            margin: 0 1px;
         }
 
-        .hotspot-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #38bdf8;
-            box-shadow: 0 0 10px #38bdf8, 0 0 20px #38bdf8;
-            transition: transform 0.3s ease, background 0.3s ease;
-            pointer-events: none;
+        /* ── Asteroid Hover & Active States ── */
+        .skill-asteroid:hover,
+        .skill-asteroid.active {
+            z-index: 150 !important;
         }
 
-        .skill-hotspot:hover .hotspot-pulse-ring,
-        .skill-hotspot.active .hotspot-pulse-ring {
-            border-color: #38bdf8;
-            border-width: 2px;
-            box-shadow: 0 0 22px #38bdf8, inset 0 0 10px rgba(56, 189, 248, 0.5);
-            transform: scale(1.25);
+        .skill-asteroid:hover .asteroid-glow-ring,
+        .skill-asteroid.active .asteroid-glow-ring {
             opacity: 1;
-            animation: none;
+            transform: scale(1.15);
         }
 
-        .skill-hotspot:hover .hotspot-dot,
-        .skill-hotspot.active .hotspot-dot {
-            transform: scale(1.4);
-            background: #ffffff;
-            box-shadow: 0 0 14px #ffffff, 0 0 25px #38bdf8;
+        .skill-asteroid:hover .asteroid-facet,
+        .skill-asteroid.active .asteroid-facet {
+            border-color: rgba(56, 189, 248, 0.95);
+            box-shadow:
+                0 0 25px rgba(56, 189, 248, 0.85),
+                inset 0 0 16px rgba(168, 85, 247, 0.5);
         }
 
-        .skill-hotspot:hover,
-        .skill-hotspot.active {
-            z-index: 50;
+        .skill-asteroid:hover .asteroid-icon-wrap,
+        .skill-asteroid.active .asteroid-icon-wrap {
+            color: #ffffff;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 1));
         }
 
-        /* ── Hotspot Tooltip HUD Card ── */
-        .hotspot-tooltip {
+        .skill-asteroid:hover .asteroid-label,
+        .skill-asteroid.active .asteroid-label {
+            border-color: rgba(56, 189, 248, 0.85);
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+            background: rgba(14, 25, 65, 0.96);
+        }
+
+        /* ── Asteroid Tooltip Popup HUD Card ── */
+        .asteroid-tooltip {
             position: absolute;
-            bottom: calc(100% + 14px);
+            bottom: calc(100% + 12px);
             left: 50%;
             transform: translateX(-50%) translateY(8px);
             width: 215px;
-            padding: 10px 14px;
+            padding: 9px 13px;
             background: rgba(10, 18, 48, 0.96);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(130, 185, 255, 0.5);
             border-radius: 12px;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 22px rgba(56, 189, 248, 0.4);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 22px rgba(56, 189, 248, 0.38);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.25s cubic-bezier(0.2, 1, 0.3, 1), transform 0.25s cubic-bezier(0.2, 1, 0.3, 1);
+            z-index: 160;
             text-align: left;
-            z-index: 100;
         }
 
-        .hotspot-tooltip::after {
+        .asteroid-tooltip::after {
             content: '';
             position: absolute;
             top: 100%;
@@ -1407,58 +1787,36 @@
             border-color: rgba(130, 185, 255, 0.5) transparent transparent transparent;
         }
 
-        /* Flip downward if near top */
-        .hotspot-tooltip.flip-down {
+        .asteroid-tooltip.tooltip-down {
             bottom: auto;
-            top: calc(100% + 14px);
+            top: calc(100% + 12px);
             transform: translateX(-50%) translateY(-8px);
         }
 
-        .hotspot-tooltip.flip-down::after {
+        .asteroid-tooltip.tooltip-down::after {
             top: auto;
             bottom: 100%;
             border-color: transparent transparent rgba(130, 185, 255, 0.5) transparent;
         }
 
-        /* Shift left/right if near edges */
-        .hotspot-tooltip.shift-left {
-            left: auto;
-            right: 0;
-            transform: translateY(8px);
-        }
-        .hotspot-tooltip.shift-left::after {
-            left: auto;
-            right: 14px;
-            transform: none;
-        }
-
-        .hotspot-tooltip.shift-right {
-            left: 0;
-            transform: translateY(8px);
-        }
-        .hotspot-tooltip.shift-right::after {
-            left: 14px;
-            transform: none;
-        }
-
-        .skill-hotspot:hover .hotspot-tooltip,
-        .skill-hotspot.active .hotspot-tooltip {
+        .skill-asteroid:hover .asteroid-tooltip,
+        .skill-asteroid.active .asteroid-tooltip {
             opacity: 1;
             pointer-events: auto;
             transform: translateX(-50%) translateY(0);
         }
 
-        .skill-hotspot:hover .hotspot-tooltip.shift-left,
-        .skill-hotspot.active .hotspot-tooltip.shift-left {
-            transform: translateY(0);
+        .tooltip-category {
+            font-size: 0.52rem;
+            font-weight: 700;
+            color: #a855f7;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 3px;
+            display: block;
         }
 
-        .skill-hotspot:hover .hotspot-tooltip.shift-right,
-        .skill-hotspot.active .hotspot-tooltip.shift-right {
-            transform: translateY(0);
-        }
-
-        .hotspot-title {
+        .tooltip-title {
             font-size: 0.74rem;
             font-weight: 700;
             color: #38bdf8;
@@ -1466,17 +1824,7 @@
             letter-spacing: 0.03em;
         }
 
-        .hotspot-category {
-            font-size: 0.54rem;
-            font-weight: 700;
-            color: #a855f7;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        .hotspot-desc {
+        .tooltip-desc {
             font-size: 0.64rem;
             line-height: 1.38;
             color: rgba(226, 232, 240, 0.94);
@@ -1486,22 +1834,45 @@
         @media (max-width: 991px) {
             .universe-section { padding: 65px 14px 14px; }
             .universe-pic-frame { border-radius: 14px; }
-            .universe-pic-img { border-radius: 14px; }
-            .skill-hotspot { width: 30px; height: 30px; margin-left: -15px; margin-top: -15px; }
-            .hotspot-dot { width: 7px; height: 7px; }
-            .hotspot-tooltip { width: 190px; padding: 8px 11px; }
-            .hotspot-title { font-size: 0.70rem; }
-            .hotspot-desc { font-size: 0.60rem; }
+            .central-planet { width: 92px; height: 92px; }
+            .asteroid-mesh { width: 38px; height: 38px; }
+            .asteroid-label { font-size: 0.52rem; padding: 2px 6px; }
+            .asteroid-tooltip { width: 190px; padding: 8px 11px; }
+            .tooltip-title { font-size: 0.70rem; }
+            .tooltip-desc { font-size: 0.60rem; }
         }
 
         @media (max-width: 640px) {
             .universe-section { padding: 60px 10px 10px; }
             .universe-pic-frame { border-radius: 12px; }
-            .universe-pic-img { border-radius: 12px; }
-            .skill-hotspot { width: 26px; height: 26px; margin-left: -13px; margin-top: -13px; }
-            .hotspot-dot { width: 6px; height: 6px; }
-            .hotspot-tooltip { width: 165px; padding: 7px 9px; }
-            .hotspot-title { font-size: 0.66rem; }
-            .hotspot-desc { font-size: 0.58rem; }
+            .central-planet { width: 78px; height: 78px; }
+            .planet-corona-outer { inset: -20px; }
+            .planet-atmosphere-halo { inset: -8px; }
+            .asteroid-mesh { width: 32px; height: 32px; }
+            .asteroid-label { font-size: 0.48rem; padding: 1px 5px; margin-top: 3px; }
+            .asteroid-tooltip { width: 165px; padding: 7px 9px; }
+            .tooltip-title { font-size: 0.66rem; }
+            .tooltip-desc { font-size: 0.58rem; }
+        }
+
+        /* ── Accessibility: Reduced Motion ── */
+        @media (prefers-reduced-motion: reduce) {
+            .central-planet,
+            .planet-corona-outer,
+            .planet-img,
+            .planet-light-sweep,
+            .orbit-energy-pulse,
+            .universe-nebula-layer,
+            .icon-neural-pulse,
+            .icon-glow-pulse,
+            .icon-network-pulse,
+            .icon-layers-glow,
+            .icon-edge-highlight,
+            .icon-brightness-pulse,
+            .icon-workflow-pulse,
+            .icon-connection-pulse,
+            .icon-interface-glow {
+                animation: none !important;
+            }
         }
     
