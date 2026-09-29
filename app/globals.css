@@ -569,7 +569,7 @@
         /* ── Robot body (handles continuous floating) ── */
         #robot-body {
             position: relative;
-            width: 115px;
+            width: 135px; /* Increased robot size */
             will-change: transform;
         }
         
@@ -724,11 +724,11 @@
                         radial-gradient(ellipse at 65% 50%, rgba(80, 200, 255, 0.25) 0%, transparent 55%);
         }
 
-        /* ── Speech / Thought interface panel — positioned North-West of the robot ── */
+        /* ── Speech / Thought interface panel — positioned North-West of the robot without overlap ── */
         #speech-panel {
             position: absolute;
-            bottom: calc(100% - 25px);
-            right: 65%; /* Positioned North-West (top-left) of the robot */
+            bottom: 52%;
+            right: calc(100% + 18px); /* Positioned North-West without overlapping the robot */
             top: auto;
             left: auto;
             transform: translate(6px, -6px);
@@ -784,14 +784,14 @@
         .thought-dot.dot-lg {
             width: 10px;
             height: 10px;
-            bottom: -9px;
-            right: 10px;
+            bottom: -5px;
+            right: -10px;
         }
         .thought-dot.dot-sm {
             width: 6px;
             height: 6px;
-            bottom: -18px;
-            right: 0px;
+            bottom: -14px;
+            right: -20px;
         }
 
         /* Luminous top accent */
@@ -876,41 +876,41 @@
         /* ── Robot responsive ── */
         @media (max-width: 991px) {
             #robot-flyer { left: 50%; }
-            #robot-body, #robot-img { width: 85px; }
+            #robot-body, #robot-img { width: 105px; }
             #speech-panel {
-                right: 45%;
-                bottom: calc(100% - 15px);
-                max-width: 195px;
-                font-size: 0.74rem;
-                padding: 9px 14px;
+                right: calc(100% + 12px);
+                bottom: 50%;
+                max-width: 190px;
+                font-size: 0.72rem;
+                padding: 9px 13px;
             }
             .thought-dot.dot-lg {
-                bottom: -8px;
-                right: 8px;
+                bottom: -5px;
+                right: -8px;
             }
             .thought-dot.dot-sm {
-                bottom: -16px;
-                right: -1px;
+                bottom: -13px;
+                right: -16px;
             }
         }
         @media (max-width: 480px) {
-            #robot-body, #robot-img { width: 70px; }
+            #robot-body, #robot-img { width: 85px; }
             #speech-panel { 
-                right: 32%;
-                bottom: calc(100% - 12px);
-                max-width: 170px;
-                font-size: 0.70rem;
-                padding: 7px 11px;
+                right: calc(100% + 8px);
+                bottom: 48%;
+                max-width: 160px;
+                font-size: 0.68rem;
+                padding: 7px 10px;
             }
             .thought-dot.dot-lg {
                 width: 8px; height: 8px;
-                bottom: -7px;
-                right: 6px;
+                bottom: -4px;
+                right: -6px;
             }
             .thought-dot.dot-sm {
                 width: 5px; height: 5px;
-                bottom: -13px;
-                right: -1px;
+                bottom: -11px;
+                right: -12px;
             }
             #skip-intro { top: 20px; right: 20px; padding: 6px 14px; font-size: 0.55rem; }
         }

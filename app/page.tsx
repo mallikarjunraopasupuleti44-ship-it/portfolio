@@ -324,10 +324,10 @@ export default function Home() {
             },
             yPercent: -50,
             scale: () => {
-                if (window.innerWidth < 640) return 0.65;
-                if (window.innerWidth < 992) return 0.78;
-                if (window.innerWidth < 1280) return 1.20;
-                return 1.40; // Balanced, sleek, and perfectly sized
+                if (window.innerWidth < 640) return 0.72;
+                if (window.innerWidth < 992) return 0.85;
+                if (window.innerWidth < 1280) return 1.15;
+                return 1.32; // Prominent, sleek, and perfectly sized
             },
             rotation: 0,
             duration: 0.45,
