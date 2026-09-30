@@ -477,7 +477,7 @@ export default function Home() {
         });
     }
 
-    // ── 6. TECHNICAL UNIVERSE (Living Animated Solar System Engine) ──
+    // ── 6. TECHNICAL UNIVERSE (Living Animated Triangular Asteroid Engine) ──
     function initTechnicalUniverse() {
         const container = document.getElementById('universePicContainer');
         const frame = document.getElementById('universePicFrame');
@@ -487,17 +487,11 @@ export default function Home() {
 
         const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // ── Asteroids Data & Orbital Mechanics ──
+        // ── Asteroids Data & Triangular Orbital Mechanics ──
         interface AsteroidItem {
             el: HTMLElement;
             mesh: HTMLElement | null;
-            orbit: 'inner' | 'middle' | 'outer';
-            rx: number;
-            ry: number;
-            baseSpeed: number;       // radians per second
-            currentSpeed: number;
-            targetSpeed: number;
-            angle: number;
+            orbitIndex: number;      // 0 to 8
             meshRot: number;
             meshRotSpeed: number;    // deg per sec
             floatPhaseX: number;
@@ -512,25 +506,77 @@ export default function Home() {
         }
 
         const asteroidEls = Array.from(document.querySelectorAll('.skill-asteroid')) as HTMLElement[];
-        
-        // Speeds: Graceful, slightly slow cosmic drift
-        // INNER: ~78s revolution = 0.080 rad/s
-        // MIDDLE: ~120s revolution = 0.052 rad/s
-        // OUTER: ~180s revolution = 0.035 rad/s
-        const orbitConfig = {
-            inner:  { rx: 195, ry: 85,  speed: 0.080, baseAngle: 0 },
-            middle: { rx: 320, ry: 135, speed: 0.052, baseAngle: Math.PI / 3 },
-            outer:  { rx: 440, ry: 185, speed: 0.035, baseAngle: (2 * Math.PI) / 3 }
-        };
 
-        const orbitCounts: Record<string, number> = { inner: 0, middle: 0, outer: 0 };
+        // Triangle Dimensions (Equilateral delta geometry centered at 0, 0)
+        // Base width: 460px (rx = 230), Height: 260px (ry = 175)
+        const baseRx = 230;
+        const baseRy = 175;
+        const V = [
+            { x: 0, y: -baseRy },
+            { x: baseRx, y: baseRy * 0.5 },
+            { x: -baseRx, y: baseRy * 0.5 }
+        ];
+
+        const L0 = Math.hypot(V[1].x - V[0].x, V[1].y - V[0].y);
+        const L1 = Math.hypot(V[2].x - V[1].x, V[2].y - V[1].y);
+        const L2 = Math.hypot(V[0].x - V[2].x, V[0].y - V[2].y);
+        const perimeter = L0 + L1 + L2;
+        const cum = [0, L0, L0 + L1, perimeter];
+        const cornerR = 24; // Smooth filleted corners
+
+        function getTrianglePoint(distAlong: number) {
+            let d = ((distAlong % perimeter) + perimeter) % perimeter;
+            const vertDists = [0, cum[1], cum[2]];
+
+            for (let vi = 0; vi < 3; vi++) {
+                const vd = vertDists[vi];
+                let diff = d - vd;
+                if (vi === 0 && d > perimeter / 2) diff = d - perimeter;
+
+                if (Math.abs(diff) <= cornerR) {
+                    const prevV = V[(vi + 2) % 3];
+                    const currV = V[vi];
+                    const nextV = V[(vi + 1) % 3];
+
+                    const dIn = Math.hypot(currV.x - prevV.x, currV.y - prevV.y);
+                    const dOut = Math.hypot(nextV.x - currV.x, nextV.y - currV.y);
+
+                    const uInX = (currV.x - prevV.x) / dIn;
+                    const uInY = (currV.y - prevV.y) / dIn;
+                    const uOutX = (nextV.x - currV.x) / dOut;
+                    const uOutY = (nextV.y - currV.y) / dOut;
+
+                    const pStartX = currV.x - uInX * cornerR;
+                    const pStartY = currV.y - uInY * cornerR;
+                    const pEndX = currV.x + uOutX * cornerR;
+                    const pEndY = currV.y + uOutY * cornerR;
+
+                    const u = (diff + cornerR) / (2.0 * cornerR);
+                    const invU = 1 - u;
+
+                    return {
+                        x: invU * invU * pStartX + 2 * invU * u * currV.x + u * u * pEndX,
+                        y: invU * invU * pStartY + 2 * invU * u * currV.y + u * u * pEndY
+                    };
+                }
+            }
+
+            for (let i = 0; i < 3; i++) {
+                if (d >= cum[i] && d <= cum[i + 1]) {
+                    const frac = (d - cum[i]) / (cum[i + 1] - cum[i]);
+                    const pA = V[i];
+                    const pB = V[(i + 1) % 3];
+                    return {
+                        x: pA.x + (pB.x - pA.x) * frac,
+                        y: pA.y + (pB.y - pA.y) * frac
+                    };
+                }
+            }
+
+            return { x: V[0].x, y: V[0].y };
+        }
 
         const asteroids: AsteroidItem[] = asteroidEls.map((el, i) => {
-            const orbitType = (el.getAttribute('data-orbit') || 'inner') as 'inner' | 'middle' | 'outer';
-            const cfg = orbitConfig[orbitType];
-            const index = orbitCounts[orbitType]++;
-            const angle = cfg.baseAngle + (index * (Math.PI * 2 / 3));
-            
             // Self-rotation speed: slow 60s to 105s tumbling per full 360deg
             const rotDuration = 60 + (i % 4) * 15;
             const rotDir = (i % 2 === 0) ? 1 : -1;
@@ -539,20 +585,14 @@ export default function Home() {
             return {
                 el,
                 mesh: el.querySelector('.asteroid-mesh'),
-                orbit: orbitType,
-                rx: cfg.rx,
-                ry: cfg.ry,
-                baseSpeed: cfg.speed,
-                currentSpeed: cfg.speed,
-                targetSpeed: cfg.speed,
-                angle,
-                meshRot: (i * 45) % 360,
+                orbitIndex: i,
+                meshRot: (i * 40) % 360,
                 meshRotSpeed,
                 floatPhaseX: Math.random() * Math.PI * 2,
                 floatPhaseY: Math.random() * Math.PI * 2,
                 floatPhaseTilt: Math.random() * Math.PI * 2,
-                floatAmpX: 2.5 + (i % 3) * 0.8,
-                floatAmpY: 3.5 + (i % 3) * 1.0,
+                floatAmpX: 2.0 + (i % 3) * 0.7,
+                floatAmpY: 3.0 + (i % 3) * 0.8,
                 currentX: 0,
                 currentY: 0,
                 isHovered: false,
@@ -561,18 +601,28 @@ export default function Home() {
         });
 
         let activeAsteroid: AsteroidItem | null = null;
+        let isAnyHovered = false;
 
-        // Asteroid events (hover, click, keyboard)
+        // Base speeds:
+        // Circuit speed: ~15px per second (~75s per full triangle circuit)
+        // Constellation rotation: ~0.035 rad/s (~180s per full 360deg rotation)
+        const baseCircuitSpeed = 15.0;
+        const baseRotSpeed = 0.035;
+        let currentCircuitSpeed = baseCircuitSpeed;
+        let currentRotSpeed = baseRotSpeed;
+        let globalCircuitDist = 0;
+        let globalRotAngle = 0;
+
         asteroids.forEach(item => {
             const el = item.el;
             el.addEventListener('mouseenter', () => {
                 item.isHovered = true;
-                item.targetSpeed = item.baseSpeed * 0.15; // smooth slow down
+                isAnyHovered = true;
             });
 
             el.addEventListener('mouseleave', () => {
                 item.isHovered = false;
-                item.targetSpeed = item.baseSpeed; // smooth return
+                isAnyHovered = asteroids.some(a => a.isHovered);
             });
 
             el.addEventListener('click', (e) => {
@@ -641,7 +691,7 @@ export default function Home() {
         // Responsive orbit scale calculation
         const getScale = () => {
             const w = frame.clientWidth;
-            if (w < 480) return 0.52;
+            if (w < 480) return 0.50;
             if (w < 768) return 0.68;
             if (w < 1024) return 0.85;
             return 1.0;
@@ -655,52 +705,61 @@ export default function Home() {
             const dt = Math.min((time - lastTime) / 1000, 0.1); // in seconds
             lastTime = time;
 
-            // Render Asteroids
+            // Smooth speed deceleration on hover / active
+            const targetCircuit = (isAnyHovered || activeAsteroid) ? baseCircuitSpeed * 0.15 : baseCircuitSpeed;
+            const targetRot = (isAnyHovered || activeAsteroid) ? baseRotSpeed * 0.15 : baseRotSpeed;
+            currentCircuitSpeed += (targetCircuit - currentCircuitSpeed) * (dt * 5);
+            currentRotSpeed += (targetRot - currentRotSpeed) * (dt * 5);
+
+            if (!prefersReducedMotion) {
+                globalCircuitDist = (globalCircuitDist + currentCircuitSpeed * dt) % perimeter;
+                globalRotAngle = (globalRotAngle + currentRotSpeed * dt) % (Math.PI * 2);
+            }
+
             const currentScaleFactor = getScale();
+            const cosRot = Math.cos(globalRotAngle);
+            const sinRot = Math.sin(globalRotAngle);
+            const stepDist = perimeter / 9.0;
+            const tSec = time * 0.001;
 
             asteroids.forEach(item => {
-                // Smooth speed interpolation
-                item.currentSpeed += (item.targetSpeed - item.currentSpeed) * (dt * 6);
-
                 if (!prefersReducedMotion) {
-                    item.angle += item.currentSpeed * dt;
                     item.meshRot = (item.meshRot + item.meshRotSpeed * dt) % 360;
                 }
 
-                const cos = Math.cos(item.angle);
-                const sin = Math.sin(item.angle);
+                // 1. Position along triangle perimeter
+                const d = (item.orbitIndex * stepDist + globalCircuitDist) % perimeter;
+                const pt = getTrianglePoint(d);
 
-                // Scaled radii
-                const rx = item.rx * currentScaleFactor;
-                const ry = item.ry * currentScaleFactor;
+                // 2. Scale to responsive viewport
+                const bx = pt.x * currentScaleFactor;
+                const by = pt.y * currentScaleFactor;
 
-                // Elliptical coordinate
-                const baseX = rx * cos;
-                const baseY = ry * sin;
+                // 3. Rotate whole triangle formation
+                const rotX = bx * cosRot - by * sinRot;
+                const rotY = bx * sinRot + by * cosRot;
 
-                // Organic float offset
-                const tSec = time * 0.001;
+                // 4. Subtle organic floating micro-drift
                 const fx = item.floatAmpX * Math.sin(tSec * 1.2 + item.floatPhaseX);
                 const fy = item.floatAmpY * Math.cos(tSec * 1.4 + item.floatPhaseY);
                 const tilt = 3 * Math.sin(tSec * 1.0 + item.floatPhaseTilt);
 
-                item.currentX = baseX + fx;
-                item.currentY = baseY + fy;
+                item.currentX = rotX + fx;
+                item.currentY = rotY + fy;
 
-                // Pseudo-3D Depth
-                // sin: -1 (top/back) to +1 (bottom/front)
-                const depth = (sin + 1) / 2; // 0 to 1
-                const baseScale = 0.80 + depth * 0.20;
+                // Pseudo-3D Depth based on Y position in space
+                const depth = Math.max(0, Math.min(1, (rotY / (baseRy * currentScaleFactor * 1.2) + 1) / 2));
+                const baseScale = 0.82 + depth * 0.22;
                 const scale = (item.isHovered || item.isActive) ? baseScale * 1.15 : baseScale;
-                const opacity = (item.isHovered || item.isActive) ? 1.0 : (0.70 + depth * 0.30);
-                const zIndex = (item.isHovered || item.isActive) ? 150 : (sin >= 0 ? 35 : 12);
+                const opacity = (item.isHovered || item.isActive) ? 1.0 : (0.75 + depth * 0.25);
+                const zIndex = (item.isHovered || item.isActive) ? 150 : (rotY >= 0 ? 35 : 12);
 
                 // Apply asteroid position and scale
                 item.el.style.transform = `translate3d(calc(-50% + ${item.currentX.toFixed(2)}px), calc(-50% + ${item.currentY.toFixed(2)}px), 0px) scale(${scale.toFixed(3)})`;
                 item.el.style.opacity = opacity.toFixed(3);
                 item.el.style.zIndex = zIndex.toString();
 
-                // Rotate ONLY the mesh (keeps label perfectly upright!)
+                // Rotate ONLY the mesh rock (keeps label perfectly upright!)
                 if (item.mesh) {
                     item.mesh.style.transform = `rotate(${item.meshRot.toFixed(1)}deg) rotateZ(${tilt.toFixed(1)}deg)`;
                 }
@@ -708,7 +767,7 @@ export default function Home() {
                 // Tooltip auto-flip if in upper half
                 const tooltip = item.el.querySelector('.asteroid-tooltip');
                 if (tooltip) {
-                    tooltip.classList.toggle('tooltip-down', sin < -0.3);
+                    tooltip.classList.toggle('tooltip-down', rotY < -30);
                 }
             });
 
@@ -719,9 +778,7 @@ export default function Home() {
 
         // ── 4. Section Entry Sequence & Parallax (GSAP ScrollTrigger) ──
         const headerEl = document.getElementById('universeHeader');
-        const innerAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="inner"]');
-        const middleAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="middle"]');
-        const outerAsteroids = document.querySelectorAll('.skill-asteroid[data-orbit="outer"]');
+        const allAsteroids = document.querySelectorAll('.skill-asteroid');
 
         const entryTl = gsap.timeline({
             scrollTrigger: {
@@ -740,30 +797,12 @@ export default function Home() {
             );
         }
 
-        // 0.5s: Inner 3 skill stars appear
-        if (innerAsteroids.length > 0) {
-            entryTl.fromTo(innerAsteroids,
-                { scale: 0.35, opacity: 0 },
-                { scale: 1, opacity: 1, stagger: 0.09, duration: 0.65, ease: "back.out(1.2)" },
-                0.5
-            );
-        }
-
-        // 0.75s: Middle 3 skill stars appear
-        if (middleAsteroids.length > 0) {
-            entryTl.fromTo(middleAsteroids,
-                { scale: 0.35, opacity: 0 },
-                { scale: 1, opacity: 1, stagger: 0.09, duration: 0.65, ease: "back.out(1.2)" },
-                0.75
-            );
-        }
-
-        // 1.0s: Outer 3 skill stars appear
-        if (outerAsteroids.length > 0) {
-            entryTl.fromTo(outerAsteroids,
-                { scale: 0.35, opacity: 0 },
-                { scale: 1, opacity: 1, stagger: 0.09, duration: 0.65, ease: "back.out(1.2)" },
-                1.0
+        // 0.5s: 9 skill asteroids appear in triangular cascade
+        if (allAsteroids.length > 0) {
+            entryTl.fromTo(allAsteroids,
+                { scale: 0.3, opacity: 0 },
+                { scale: 1, opacity: 1, stagger: 0.08, duration: 0.7, ease: "back.out(1.2)" },
+                0.45
             );
         }
 
@@ -991,7 +1030,7 @@ export default function Home() {
                         <span class="pulse-dot"></span>
                         SYSTEM ARCHITECTURE
                     </span>
-                    <span class="badge-tag font-body">Interactive Orbit</span>
+                    <span class="badge-tag font-body">Triangular Orbit</span>
                 </div>
                 <h2 class="universe-title font-heading">
                     MY TECHNICAL UNIVERSE
