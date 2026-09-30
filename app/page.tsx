@@ -1038,8 +1038,8 @@ export default function Home() {
                     <!-- Orbit Stage (3D Coordinate Space centered at 0,0) -->
                     <div class="orbit-stage" id="orbitStage">
                         <!-- 9 Skill Asteroids Floating in the Universe -->
-                        <!-- 1. Artificial Intelligence (Inner Orbit) -->
-                        <div class="skill-asteroid" data-skill="ai" data-orbit="inner" role="button" tabindex="0" aria-label="Artificial Intelligence">
+                        <!-- 1. AI -->
+                        <div class="skill-asteroid" data-skill="ai" data-orbit="inner" role="button" tabindex="0" aria-label="Artificial Intelligence (AI)">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
@@ -1049,7 +1049,7 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Artificial Intelligence</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>AI</span><span class="label-bracket">]</span></div>
                             <div class="asteroid-tooltip font-body">
                                 <span class="tooltip-category font-heading">INNER ORBIT</span>
                                 <div class="tooltip-title font-heading">Artificial Intelligence</div>
@@ -1057,7 +1057,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <!-- 2. Python (Inner Orbit) -->
+                        <!-- 2. Python -->
                         <div class="skill-asteroid" data-skill="python" data-orbit="inner" role="button" tabindex="0" aria-label="Python">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
@@ -1076,8 +1076,8 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <!-- 3. Machine Learning (Inner Orbit) -->
-                        <div class="skill-asteroid" data-skill="ml" data-orbit="inner" role="button" tabindex="0" aria-label="Machine Learning">
+                        <!-- 3. Machine Learning (ML) -->
+                        <div class="skill-asteroid" data-skill="ml" data-orbit="inner" role="button" tabindex="0" aria-label="Machine Learning (ML)">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
                                 <div class="asteroid-glow-ring"></div>
@@ -1087,7 +1087,7 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Machine Learning</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>ML</span><span class="label-bracket">]</span></div>
                             <div class="asteroid-tooltip font-body">
                                 <span class="tooltip-category font-heading">INNER ORBIT</span>
                                 <div class="tooltip-title font-heading">Machine Learning</div>
@@ -1095,7 +1095,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <!-- 4. Full-Stack Development (Middle Orbit) -->
+                        <!-- 4. Full-Stack Development -->
                         <div class="skill-asteroid" data-skill="fullstack" data-orbit="middle" role="button" tabindex="0" aria-label="Full-Stack Development">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
@@ -1106,7 +1106,7 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Full-Stack Development</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Full-Stack</span><span class="label-bracket">]</span></div>
                             <div class="asteroid-tooltip font-body">
                                 <span class="tooltip-category font-heading">MIDDLE ORBIT</span>
                                 <div class="tooltip-title font-heading">Full-Stack Development</div>
@@ -1114,7 +1114,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <!-- 5. Next.js (Middle Orbit) -->
+                        <!-- 5. Next.js -->
                         <div class="skill-asteroid" data-skill="nextjs" data-orbit="middle" role="button" tabindex="0" aria-label="Next.js">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
@@ -1133,7 +1133,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <!-- 6. JavaScript (Middle Orbit) -->
+                        <!-- 6. JavaScript -->
                         <div class="skill-asteroid" data-skill="javascript" data-orbit="middle" role="button" tabindex="0" aria-label="JavaScript">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
@@ -1152,7 +1152,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <!-- 7. AI Automation & n8n (Outer Orbit) -->
+                        <!-- 7. AI Automation & n8n -->
                         <div class="skill-asteroid" data-skill="automation" data-orbit="outer" role="button" tabindex="0" aria-label="AI Automation & n8n">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
@@ -1163,7 +1163,7 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>AI Automation &amp; n8n</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>Automation</span><span class="label-bracket">]</span></div>
                             <div class="asteroid-tooltip font-body">
                                 <span class="tooltip-category font-heading">OUTER ORBIT</span>
                                 <div class="tooltip-title font-heading">AI Automation &amp; n8n</div>
@@ -1171,7 +1171,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <!-- 8. API Integration (Outer Orbit) -->
+                        <!-- 8. API Integration -->
                         <div class="skill-asteroid" data-skill="api" data-orbit="outer" role="button" tabindex="0" aria-label="API Integration">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
@@ -1182,7 +1182,7 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>API Integration</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>APIs</span><span class="label-bracket">]</span></div>
                             <div class="asteroid-tooltip font-body">
                                 <span class="tooltip-category font-heading">OUTER ORBIT</span>
                                 <div class="tooltip-title font-heading">API Integration</div>
@@ -1190,7 +1190,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <!-- 9. UI/UX & Interactive Web Design (Outer Orbit) -->
+                        <!-- 9. UI/UX & Interactive Web Design -->
                         <div class="skill-asteroid" data-skill="uiux" data-orbit="outer" role="button" tabindex="0" aria-label="UI/UX & Interactive Web Design">
                             <div class="asteroid-mesh">
                                 <img src="/asteroid.png" alt="Asteroid" class="asteroid-rock-img" />
@@ -1201,7 +1201,7 @@ export default function Home() {
                                     </div>
                                 </div>
                             </div>
-                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>UI/UX &amp; Interactive Web Design</span><span class="label-bracket">]</span></div>
+                            <div class="asteroid-label font-heading"><span class="label-bracket">[</span><span>UI / UX</span><span class="label-bracket">]</span></div>
                             <div class="asteroid-tooltip font-body">
                                 <span class="tooltip-category font-heading">OUTER ORBIT</span>
                                 <div class="tooltip-title font-heading">UI/UX &amp; Interactive Web Design</div>
