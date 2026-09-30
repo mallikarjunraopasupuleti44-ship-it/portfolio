@@ -613,6 +613,226 @@ export default function Home() {
         let currentCircuitSpeed = baseCircuitSpeed;
         let globalCircuitDist = 0;
 
+        // Skill Dossier & Inspection Data for 9 Skills
+        const SKILL_KEYS = ['ai', 'python', 'ml', 'fullstack', 'nextjs', 'javascript', 'automation', 'api', 'uiux'];
+        const SKILL_DATA: Record<string, {
+            title: string;
+            shortCode: string;
+            orbit: string;
+            headline: string;
+            desc: string;
+            capabilities: string;
+            stack: string[];
+            iconSvg: string;
+        }> = {
+            ai: {
+                title: "Artificial Intelligence",
+                shortCode: "AI",
+                orbit: "INNER ORBIT // CORE ARCHITECTURE",
+                headline: "Autonomous Agents & LLM Architectures",
+                desc: "Designing and deploying intelligent systems that reason, plan, and automate complex workflows. Deep focus on Large Language Models, prompt engineering, multi-agent collaboration, and embedding AI directly into user-facing applications.",
+                capabilities: "Building self-correcting agentic pipelines that turn unstructured data into actionable decisions.",
+                stack: ["OpenAI / Gemini APIs", "LangChain", "Vector DBs", "Prompt Engineering", "Multi-Agent Systems"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M12 2a4 4 0 0 1 4 4v1a4 4 0 0 1-4 4 4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z"/><path d="M18 10a6 6 0 0 1-12 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/><path d="M9 14l-4 4"/><path d="M15 14l4 4"/></svg>`
+            },
+            python: {
+                title: "Python",
+                shortCode: "Python",
+                orbit: "INNER ORBIT // CORE LANGUAGE",
+                headline: "High-Performance Backend & AI Engineering",
+                desc: "The foundational language powering my machine learning models, backend microservices, and automation pipelines. Writing clean, idiomatic code emphasizing asynchronous processing, typing, and modular architectures.",
+                capabilities: "Developing scalable APIs and production-ready machine learning workflows.",
+                stack: ["Python 3.12+", "FastAPI", "PyTorch", "NumPy & Pandas", "AsyncIO", "Pydantic"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2c2.76 0 5 2.24 5 5v2h-4V8a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5v2H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5h5zm0 20c-2.76 0-5-2.24-5-5v-2h4v1a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5v-2h5a5 5 0 0 1 5 5v2a5 5 0 0 1-5 5h-5z"/></svg>`
+            },
+            ml: {
+                title: "Machine Learning",
+                shortCode: "ML",
+                orbit: "INNER ORBIT // PREDICTIVE INTELLIGENCE",
+                headline: "Statistical Modeling & Pattern Recognition",
+                desc: "Formulating machine learning pipelines from raw data preprocessing and exploratory feature engineering to supervised/unsupervised model training, hyperparameter tuning, and model evaluation.",
+                capabilities: "Extracting high-signal predictive insights and deploying optimized inference models.",
+                stack: ["Scikit-Learn", "XGBoost", "PyTorch", "Matplotlib", "Feature Engineering", "Data Modeling"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`
+            },
+            fullstack: {
+                title: "Full-Stack Development",
+                shortCode: "Full-Stack",
+                orbit: "MIDDLE ORBIT // SYSTEM ARCHITECTURE",
+                headline: "End-to-End Scalable Web Applications",
+                desc: "Bridging intuitive user interfaces with robust, fault-tolerant backend architectures. Crafting seamless end-to-end user experiences with database modeling, RESTful/GraphQL communication, and real-time state synchronization.",
+                capabilities: "Delivering cohesive, production-grade applications from schema design to UI polish.",
+                stack: ["React", "Next.js", "Node.js", "PostgreSQL", "MongoDB", "REST / GraphQL", "Tailwind CSS"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`
+            },
+            nextjs: {
+                title: "Next.js",
+                shortCode: "Next.js",
+                orbit: "MIDDLE ORBIT // PRODUCTION FRAMEWORK",
+                headline: "Server-Rendered & Edge-Optimized Frontends",
+                desc: "Leveraging Next.js App Router, React Server Components (RSC), and Server Actions to build blazingly fast, SEO-optimized web applications with minimal client-side JavaScript overhead.",
+                capabilities: "Zero-layout-shift rendering, instant edge page loads, and enterprise-grade web architecture.",
+                stack: ["Next.js 15+", "App Router", "React Server Components", "Server Actions", "Turbopack", "Edge Runtime"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm3.3 14.6l-5.6-7.3v7.3H8.2V7.4h1.6l5.7 7.4V7.4h1.5v9.2z"/></svg>`
+            },
+            javascript: {
+                title: "JavaScript",
+                shortCode: "JavaScript",
+                orbit: "MIDDLE ORBIT // CORE RUNTIME",
+                headline: "Modern ES6+ & Interactive Engineering",
+                desc: "Deep expertise in the asynchronous JavaScript runtime, DOM optimization, Web APIs, and functional paradigms. Crafting interactive UI micro-interactions, canvas graphics, and event-driven architectures.",
+                capabilities: "Fluid client-side performance, reactive state synchronization, and buttery 60fps animations.",
+                stack: ["ESNext", "TypeScript", "Async/Await", "WebSockets", "DOM Engine", "GSAP Animations"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M3 3h18v18H3V3zm13.6 14.5c1.4 0 2.4-.8 2.4-2.1v-.1c0-1.3-.8-1.9-2.2-2.5l-.8-.3c-.7-.3-1.1-.6-1.1-1.1v-.1c0-.5.4-.9 1.1-.9.7 0 1.1.3 1.5.8l1.4-1c-.7-.9-1.6-1.4-2.9-1.4-1.7 0-2.8 1-2.8 2.4v.1c0 1.3.8 1.9 2.1 2.5l.8.3c.8.4 1.2.7 1.2 1.2v.1c0 .6-.5 1-1.3 1-.9 0-1.4-.4-1.8-1.1l-1.5 1c.7 1.2 1.8 1.8 3.3 1.8zm-6.2-.2c.8 0 1.4-.2 1.8-.7V9h-1.8v5.5c0 .6-.3.9-.8.9-.4 0-.7-.2-.9-.5l-1.3 1c.5 1 1.6 1.7 3 1.7z"/></svg>`
+            },
+            automation: {
+                title: "AI Automation & n8n",
+                shortCode: "Automation",
+                orbit: "OUTER ORBIT // WORKFLOW AUTOMATION",
+                headline: "Autonomous Pipelines & n8n Workflows",
+                desc: "Architecting robust end-to-end automation pipelines that connect diverse SaaS tools, webhooks, databases, and AI agents. Eliminating manual toil through resilient self-healing background triggers.",
+                capabilities: "Connecting disparate business and developer tools into unified, lights-out autonomous pipelines.",
+                stack: ["n8n", "Webhook Triggers", "Agentic Loops", "CRON Schedulers", "REST Integrations", "Data Parsing"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="12" cy="18" r="3"/><line x1="8.6" y1="7.4" x2="15.4" y2="7.4"/><path d="M7.7 8.5L10.3 15.5"/><path d="M16.3 8.5L13.7 15.5"/></svg>`
+            },
+            api: {
+                title: "API Integration",
+                shortCode: "APIs",
+                orbit: "OUTER ORBIT // DISTRIBUTED SYSTEMS",
+                headline: "Robust API Design & Integration",
+                desc: "Designing and integrating resilient RESTful endpoints, GraphQL schemas, and real-time WebSocket pipelines. Focused on rate-limiting, error recovery, schema validation, and secure authentication.",
+                capabilities: "Seamlessly connecting third-party platforms with clean, decoupled data contracts.",
+                stack: ["REST APIs", "GraphQL", "WebSockets", "OAuth2 & JWT", "Postman / OpenAPI", "Rate Limiting"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`
+            },
+            uiux: {
+                title: "UI/UX & Interactive Design",
+                shortCode: "UI / UX",
+                orbit: "OUTER ORBIT // INTERFACE ENGINEERING",
+                headline: "Spatial Layouts & Fluid Micro-Interactions",
+                desc: "Crafting futuristic yet human-centric digital interfaces. Combining dark futuristic glassmorphism, responsive mathematical grid systems, micro-animations, and accessible WCAG-compliant design principles.",
+                capabilities: "Transforming complex technical systems into intuitive, captivating digital visual experiences.",
+                stack: ["Figma", "Tailwind CSS", "GSAP Animations", "CSS 3D Transforms", "Glassmorphism", "Micro-Interactions"],
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>`
+            }
+        };
+
+        const spotlightModal = document.getElementById('skillSpotlightModal');
+        const spotlightCloseBtn = document.getElementById('spotlightCloseBtn');
+        const spotlightBackdrop = document.getElementById('spotlightBackdrop');
+        const spotlightPrevBtn = document.getElementById('spotlightPrevBtn');
+        const spotlightNextBtn = document.getElementById('spotlightNextBtn');
+        const spotlightTitle = document.getElementById('spotlightTitle');
+        const spotlightHeadline = document.getElementById('spotlightHeadline');
+        const spotlightDesc = document.getElementById('spotlightDesc');
+        const spotlightCapability = document.getElementById('spotlightCapability');
+        const spotlightTags = document.getElementById('spotlightTags');
+        const spotlightOrbitLabel = document.getElementById('spotlightOrbitLabel');
+        const spotlightShortCode = document.getElementById('spotlightShortCode');
+        const spotlightRockIcon = document.getElementById('spotlightRockIcon');
+        const spotlightCard = document.getElementById('spotlightCard');
+        const spotlightZoomedRock = document.getElementById('spotlightZoomedRock');
+
+        let isSpotlightOpen = false;
+        let currentSkillKey = 'ai';
+
+        function openSpotlight(key: string) {
+            const data = SKILL_DATA[key];
+            if (!data || !spotlightModal) return;
+
+            currentSkillKey = key;
+            isSpotlightOpen = true;
+
+            if (spotlightTitle) spotlightTitle.textContent = data.title;
+            if (spotlightHeadline) spotlightHeadline.textContent = data.headline;
+            if (spotlightDesc) spotlightDesc.textContent = data.desc;
+            if (spotlightCapability) spotlightCapability.textContent = data.capabilities;
+            if (spotlightOrbitLabel) spotlightOrbitLabel.textContent = data.orbit;
+            if (spotlightShortCode) spotlightShortCode.textContent = `[ ${data.shortCode} ]`;
+            if (spotlightRockIcon) spotlightRockIcon.innerHTML = data.iconSvg;
+            if (spotlightTags) {
+                spotlightTags.innerHTML = data.stack.map(tag => `<span class="spotlight-pill">${tag}</span>`).join('');
+            }
+
+            spotlightModal.classList.add('active');
+            spotlightModal.setAttribute('aria-hidden', 'false');
+
+            if (spotlightCard) {
+                gsap.fromTo(spotlightCard,
+                    { scale: 0.88, y: 20, opacity: 0 },
+                    { scale: 1, y: 0, opacity: 1, duration: 0.35, ease: "back.out(1.4)" }
+                );
+            }
+            if (spotlightZoomedRock) {
+                gsap.fromTo(spotlightZoomedRock,
+                    { scale: 0.4, rotation: -45, opacity: 0 },
+                    { scale: 1, rotation: 0, opacity: 1, duration: 0.45, ease: "back.out(1.6)" }
+                );
+            }
+        }
+
+        function closeSpotlight() {
+            if (!spotlightModal || !isSpotlightOpen) return;
+            if (spotlightCard) {
+                gsap.to(spotlightCard, {
+                    scale: 0.92,
+                    y: 15,
+                    opacity: 0,
+                    duration: 0.22,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        spotlightModal.classList.remove('active');
+                        spotlightModal.setAttribute('aria-hidden', 'true');
+                        isSpotlightOpen = false;
+                    }
+                });
+            } else {
+                spotlightModal.classList.remove('active');
+                spotlightModal.setAttribute('aria-hidden', 'true');
+                isSpotlightOpen = false;
+            }
+
+            asteroids.forEach(a => {
+                a.isActive = false;
+                a.el.classList.remove('active');
+            });
+            activeAsteroid = null;
+        }
+
+        spotlightCloseBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeSpotlight();
+        });
+
+        spotlightBackdrop?.addEventListener('click', () => {
+            closeSpotlight();
+        });
+
+        spotlightPrevBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = SKILL_KEYS.indexOf(currentSkillKey);
+            const prevIdx = (idx - 1 + SKILL_KEYS.length) % SKILL_KEYS.length;
+            openSpotlight(SKILL_KEYS[prevIdx]);
+        });
+
+        spotlightNextBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = SKILL_KEYS.indexOf(currentSkillKey);
+            const nextIdx = (idx + 1) % SKILL_KEYS.length;
+            openSpotlight(SKILL_KEYS[nextIdx]);
+        });
+
+        const handleSpotlightKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isSpotlightOpen) {
+                closeSpotlight();
+            } else if (isSpotlightOpen && e.key === 'ArrowRight') {
+                spotlightNextBtn?.click();
+            } else if (isSpotlightOpen && e.key === 'ArrowLeft') {
+                spotlightPrevBtn?.click();
+            }
+        };
+        document.addEventListener('keydown', handleSpotlightKeyDown);
+
         asteroids.forEach(item => {
             const el = item.el;
             el.addEventListener('mouseenter', () => {
@@ -627,19 +847,15 @@ export default function Home() {
 
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (item.isActive) {
-                    item.isActive = false;
-                    el.classList.remove('active');
-                    activeAsteroid = null;
-                } else {
-                    asteroids.forEach(other => {
-                        other.isActive = false;
-                        other.el.classList.remove('active');
-                    });
-                    item.isActive = true;
-                    el.classList.add('active');
-                    activeAsteroid = item;
-                }
+                const skillKey = el.getAttribute('data-skill') || '';
+                asteroids.forEach(other => {
+                    other.isActive = false;
+                    other.el.classList.remove('active');
+                });
+                item.isActive = true;
+                el.classList.add('active');
+                activeAsteroid = item;
+                openSpotlight(skillKey);
             });
 
             el.addEventListener('keydown', (e) => {
@@ -653,8 +869,10 @@ export default function Home() {
         // Click outside dismisses active asteroid
         const handleDocClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            if (!target.closest('.skill-asteroid')) {
-                if (activeAsteroid) {
+            if (!target.closest('.skill-asteroid') && !target.closest('.spotlight-card')) {
+                if (isSpotlightOpen) {
+                    closeSpotlight();
+                } else if (activeAsteroid) {
                     activeAsteroid.isActive = false;
                     activeAsteroid.el.classList.remove('active');
                     activeAsteroid = null;
@@ -706,9 +924,9 @@ export default function Home() {
             const dt = Math.min((time - lastTime) / 1000, 0.1); // in seconds
             lastTime = time;
 
-            // Smooth speed deceleration on hover / active
-            const targetCircuit = (isAnyHovered || activeAsteroid) ? baseCircuitSpeed * 0.15 : baseCircuitSpeed;
-            currentCircuitSpeed += (targetCircuit - currentCircuitSpeed) * (dt * 5);
+            // Smooth speed deceleration on hover / active / spotlight inspection
+            const targetCircuit = isSpotlightOpen ? 0 : ((isAnyHovered || activeAsteroid) ? baseCircuitSpeed * 0.15 : baseCircuitSpeed);
+            currentCircuitSpeed += (targetCircuit - currentCircuitSpeed) * (dt * 6);
 
             if (!prefersReducedMotion) {
                 globalCircuitDist = (globalCircuitDist + currentCircuitSpeed * dt) % perimeter;
@@ -813,6 +1031,7 @@ export default function Home() {
         return () => {
             cancelAnimationFrame(animFrameId);
             document.removeEventListener('click', handleDocClick);
+            document.removeEventListener('keydown', handleSpotlightKeyDown);
             container.removeEventListener('mousemove', handleMouseMove);
             container.removeEventListener('mouseleave', handleMouseLeave);
         };
@@ -1206,6 +1425,78 @@ export default function Home() {
                                 <span class="tooltip-category font-heading">OUTER ORBIT</span>
                                 <div class="tooltip-title font-heading">UI/UX &amp; Interactive Web Design</div>
                                 <div class="tooltip-desc">Crafting fluid micro-animations, glassmorphic spatial layouts, and human-centered design systems.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SKILL ZOOM-IN SPOTLIGHT MODAL -->
+            <div class="skill-spotlight-modal" id="skillSpotlightModal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Skill Details">
+                <div class="spotlight-backdrop" id="spotlightBackdrop"></div>
+                <div class="spotlight-card" id="spotlightCard">
+                    <!-- Close Button -->
+                    <button class="spotlight-close-btn" id="spotlightCloseBtn" type="button" aria-label="Close skill inspection">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+
+                    <div class="spotlight-grid">
+                        <!-- Left Chamber: Zoomed Asteroid Rock View -->
+                        <div class="spotlight-rock-chamber">
+                            <div class="chamber-reticle"></div>
+                            <div class="chamber-glow-field"></div>
+                            <div class="spotlight-zoomed-rock" id="spotlightZoomedRock">
+                                <img src="/asteroid.png" alt="Zoomed Asteroid Rock" class="spotlight-rock-img" />
+                                <div class="spotlight-rock-energy-core">
+                                    <div class="spotlight-rock-icon" id="spotlightRockIcon"></div>
+                                </div>
+                            </div>
+                            <div class="chamber-status font-heading">
+                                <span class="radar-dot"></span>
+                                <span>INSPECTION CHAMBER</span>
+                            </div>
+                            <div class="chamber-orbit-label font-body" id="spotlightOrbitLabel">INNER ORBIT // CORE</div>
+                        </div>
+
+                        <!-- Right Panel: Skill Dossier & Explanation -->
+                        <div class="spotlight-info-panel">
+                            <div class="spotlight-badge-row">
+                                <span class="spotlight-tag-pill font-heading">SKILL DOSSIER</span>
+                                <span class="spotlight-short-code font-heading" id="spotlightShortCode">[ AI ]</span>
+                            </div>
+                            <h3 class="spotlight-title font-heading" id="spotlightTitle">Artificial Intelligence</h3>
+                            <div class="spotlight-headline font-heading" id="spotlightHeadline">Autonomous Agents &amp; LLM Architectures</div>
+                            <p class="spotlight-desc font-body" id="spotlightDesc">
+                                Designing and deploying intelligent systems that reason, plan, and automate complex workflows. Deep focus on Large Language Models, prompt engineering, multi-agent collaboration, and embedding AI directly into user-facing applications.
+                            </p>
+                            
+                            <!-- Key Capability Callout -->
+                            <div class="spotlight-capability-box">
+                                <span class="capability-heading font-heading">CORE STRENGTH</span>
+                                <p class="capability-text font-body" id="spotlightCapability">
+                                    Building self-correcting agentic pipelines that turn unstructured data into actionable decisions.
+                                </p>
+                            </div>
+
+                            <!-- Tech Stack Section -->
+                            <div class="spotlight-stack-section">
+                                <span class="stack-heading font-heading">CORE TECHNOLOGIES</span>
+                                <div class="spotlight-tags-wrap font-body" id="spotlightTags"></div>
+                            </div>
+
+                            <!-- Footer Navigation -->
+                            <div class="spotlight-footer">
+                                <div class="spotlight-nav-btns">
+                                    <button class="spotlight-nav-btn font-heading" id="spotlightPrevBtn" type="button" aria-label="Previous skill">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="15 18 9 12 15 6"/></svg>
+                                        <span>PREV</span>
+                                    </button>
+                                    <button class="spotlight-nav-btn font-heading" id="spotlightNextBtn" type="button" aria-label="Next skill">
+                                        <span>NEXT</span>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><polyline points="9 18 15 12 9 6"/></svg>
+                                    </button>
+                                </div>
+                                <span class="spotlight-esc-hint font-body">Use <kbd>&larr;</kbd> <kbd>&rarr;</kbd> to browse &bull; <kbd>Esc</kbd> to exit</span>
                             </div>
                         </div>
                     </div>
