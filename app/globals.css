@@ -1294,6 +1294,7 @@
             justify-content: center;
             transform-style: preserve-3d;
             z-index: 5;
+            pointer-events: none;
             transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
@@ -1306,12 +1307,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
+            cursor: pointer !important;
             will-change: transform, opacity;
             z-index: 10;
-            pointer-events: auto;
+            pointer-events: auto !important;
             touch-action: manipulation;
             outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Generous clickable hitbox extension around the asteroid */
+        .skill-asteroid::before {
+            content: '';
+            position: absolute;
+            inset: -14px;
+            border-radius: 50%;
+            z-index: 1;
+            pointer-events: auto;
+            cursor: pointer;
         }
 
         .asteroid-mesh {
@@ -1559,7 +1572,7 @@
         .skill-asteroid:hover .asteroid-tooltip,
         .skill-asteroid.active .asteroid-tooltip {
             opacity: 1;
-            pointer-events: auto;
+            pointer-events: none;
             transform: translateX(-50%) translateY(0);
         }
 
@@ -1591,10 +1604,10 @@
            SKILL ZOOM-IN SPOTLIGHT MODAL
            ════════════════════════════════════════════════════════════════ */
         .skill-spotlight-modal {
-            position: absolute;
+            position: fixed;
             inset: 0;
-            z-index: 300;
-            display: flex;
+            z-index: 99999;
+            display: none;
             align-items: center;
             justify-content: center;
             padding: clamp(14px, 3.5vw, 36px);
@@ -1605,8 +1618,9 @@
         }
 
         .skill-spotlight-modal.active {
-            opacity: 1;
-            pointer-events: auto;
+            display: flex !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
         }
 
         .spotlight-backdrop {

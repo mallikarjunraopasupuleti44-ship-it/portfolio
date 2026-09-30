@@ -736,6 +736,10 @@ export default function Home() {
         let isSpotlightOpen = false;
         let currentSkillKey = 'ai';
 
+        if (spotlightModal) {
+            spotlightModal.style.display = 'none';
+        }
+
         function openSpotlight(key: string) {
             const data = SKILL_DATA[key];
             if (!data || !spotlightModal) return;
@@ -754,6 +758,8 @@ export default function Home() {
                 spotlightTags.innerHTML = data.stack.map(tag => `<span class="spotlight-pill">${tag}</span>`).join('');
             }
 
+            spotlightModal.style.display = 'flex';
+            void spotlightModal.offsetHeight; // Force reflow
             spotlightModal.classList.add('active');
             spotlightModal.setAttribute('aria-hidden', 'false');
 
@@ -765,14 +771,16 @@ export default function Home() {
             }
             if (spotlightZoomedRock) {
                 gsap.fromTo(spotlightZoomedRock,
-                    { scale: 0.4, rotation: -45, opacity: 0 },
-                    { scale: 1, rotation: 0, opacity: 1, duration: 0.45, ease: "back.out(1.6)" }
+                    { scale: 0.35, opacity: 0 },
+                    { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(1.6)" }
                 );
             }
         }
 
         function closeSpotlight() {
             if (!spotlightModal || !isSpotlightOpen) return;
+            isSpotlightOpen = false;
+
             if (spotlightCard) {
                 gsap.to(spotlightCard, {
                     scale: 0.92,
@@ -783,13 +791,13 @@ export default function Home() {
                     onComplete: () => {
                         spotlightModal.classList.remove('active');
                         spotlightModal.setAttribute('aria-hidden', 'true');
-                        isSpotlightOpen = false;
+                        spotlightModal.style.display = 'none';
                     }
                 });
             } else {
                 spotlightModal.classList.remove('active');
                 spotlightModal.setAttribute('aria-hidden', 'true');
-                isSpotlightOpen = false;
+                spotlightModal.style.display = 'none';
             }
 
             asteroids.forEach(a => {
@@ -845,9 +853,11 @@ export default function Home() {
                 isAnyHovered = asteroids.some(a => a.isHovered);
             });
 
-            el.addEventListener('click', (e) => {
+            const handleAsteroidClick = (e: Event) => {
+                e.preventDefault();
                 e.stopPropagation();
-                const skillKey = el.getAttribute('data-skill') || '';
+                const skillKey = el.getAttribute('data-skill') || (e.target as HTMLElement)?.closest('.skill-asteroid')?.getAttribute('data-skill') || '';
+                if (!skillKey) return;
                 asteroids.forEach(other => {
                     other.isActive = false;
                     other.el.classList.remove('active');
@@ -856,12 +866,14 @@ export default function Home() {
                 el.classList.add('active');
                 activeAsteroid = item;
                 openSpotlight(skillKey);
-            });
+            };
+
+            el.addEventListener('click', handleAsteroidClick);
 
             el.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    el.click();
+                    handleAsteroidClick(e);
                 }
             });
         });
