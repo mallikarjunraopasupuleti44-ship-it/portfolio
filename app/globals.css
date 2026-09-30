@@ -1205,7 +1205,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
+            gap: 4px;
             overflow: hidden;
             box-sizing: border-box;
             z-index: 10;
@@ -1252,9 +1253,11 @@
         .universe-pic-container {
             position: relative;
             width: 100%;
-            max-width: 1040px;
+            max-width: 1100px;
             flex: 1;
-            min-height: 0;
+            height: 62vh;
+            min-height: 520px;
+            max-height: 640px;
             margin: 0 auto;
             display: flex;
             align-items: center;
@@ -1266,8 +1269,9 @@
         .universe-pic-frame {
             position: relative;
             width: 100%;
-            max-height: calc(100vh - 175px);
-            aspect-ratio: 16 / 9;
+            height: 100%;
+            min-height: 520px;
+            max-height: 640px;
             background: transparent;
             border: none;
             box-shadow: none;
@@ -1448,15 +1452,15 @@
         /* ── Upright Skill Label ── */
         .asteroid-label {
             margin-top: 5px;
-            font-size: 0.58rem;
+            font-size: clamp(0.50rem, 0.72vw, 0.56rem);
             font-weight: 700;
             color: rgba(220, 235, 255, 0.95);
             background: rgba(8, 16, 40, 0.88);
             border: 1px solid rgba(130, 185, 255, 0.35);
             border-radius: 999px;
-            padding: 2px 7px;
+            padding: 2px 6px;
             white-space: nowrap;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6), 0 0 10px rgba(56, 189, 248, 0.25);
             pointer-events: none;
