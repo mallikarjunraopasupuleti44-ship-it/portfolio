@@ -1608,6 +1608,16 @@
         /* ════════════════════════════════════════════════════════════════
            SKILL ZOOM-IN SPOTLIGHT MODAL
            ════════════════════════════════════════════════════════════════ */
+        body.spotlight-open #mainContent {
+            z-index: 10000 !important;
+        }
+
+        body.spotlight-open #robot-scene {
+            opacity: 0.12 !important;
+            pointer-events: none !important;
+            transition: opacity 0.3s ease;
+        }
+
         .skill-spotlight-modal {
             position: fixed;
             inset: 0;

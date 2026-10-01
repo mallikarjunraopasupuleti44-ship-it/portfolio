@@ -763,6 +763,7 @@ export default function Home() {
             void spotlightModal.offsetHeight; // Force reflow
             spotlightModal.classList.add('active');
             spotlightModal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('spotlight-open');
 
             if (spotlightCard) {
                 gsap.fromTo(spotlightCard,
@@ -781,6 +782,7 @@ export default function Home() {
         function closeSpotlight() {
             if (!spotlightModal || !isSpotlightOpen) return;
             isSpotlightOpen = false;
+            document.body.classList.remove('spotlight-open');
 
             if (spotlightCard) {
                 gsap.to(spotlightCard, {
