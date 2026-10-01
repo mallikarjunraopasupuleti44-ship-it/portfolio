@@ -759,6 +759,7 @@ export default function Home() {
             }
 
             spotlightModal.style.display = 'flex';
+            spotlightModal.style.opacity = '1';
             void spotlightModal.offsetHeight; // Force reflow
             spotlightModal.classList.add('active');
             spotlightModal.setAttribute('aria-hidden', 'false');
@@ -792,12 +793,14 @@ export default function Home() {
                         spotlightModal.classList.remove('active');
                         spotlightModal.setAttribute('aria-hidden', 'true');
                         spotlightModal.style.display = 'none';
+                        spotlightModal.style.opacity = '0';
                     }
                 });
             } else {
                 spotlightModal.classList.remove('active');
                 spotlightModal.setAttribute('aria-hidden', 'true');
                 spotlightModal.style.display = 'none';
+                spotlightModal.style.opacity = '0';
             }
 
             asteroids.forEach(a => {
@@ -841,6 +844,7 @@ export default function Home() {
         };
         document.addEventListener('keydown', handleSpotlightKeyDown);
 
+        // ── Direct asteroid click & hover bindings ──
         asteroids.forEach(item => {
             const el = item.el;
             el.addEventListener('mouseenter', () => {
@@ -878,13 +882,58 @@ export default function Home() {
             });
         });
 
-        // Click outside dismisses active asteroid
+        // ── Robust Universe Stage & Container Click & Touch Delegation ──
+        // Ensures that clicks or taps anywhere on or near an asteroid open the spotlight immediately
+        const handleUniverseInteraction = (clientX: number, clientY: number, target: HTMLElement) => {
+            if (isSpotlightOpen || target.closest('#skillSpotlightModal')) return;
+
+            // 1. Direct hit on asteroid
+            const directHit = target.closest('.skill-asteroid') as HTMLElement;
+            if (directHit) {
+                const key = directHit.getAttribute('data-skill');
+                if (key) {
+                    openSpotlight(key);
+                    return;
+                }
+            }
+
+            // 2. Proximity hit detection (within 68px of any asteroid's visual center)
+            let closest: AsteroidItem | null = null;
+            let minDist = 68;
+            for (const item of asteroids) {
+                const r = item.el.getBoundingClientRect();
+                const cx = r.left + r.width / 2;
+                const cy = r.top + r.height / 2;
+                const dist = Math.hypot(cx - clientX, cy - clientY);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = item;
+                }
+            }
+            if (closest) {
+                const key = closest.el.getAttribute('data-skill');
+                if (key) {
+                    openSpotlight(key);
+                }
+            }
+        };
+
+        container.addEventListener('click', (e: MouseEvent) => {
+            handleUniverseInteraction(e.clientX, e.clientY, e.target as HTMLElement);
+        });
+
+        container.addEventListener('touchend', (e: TouchEvent) => {
+            if (e.touches.length > 0) return;
+            const touch = e.changedTouches[0];
+            if (!touch) return;
+            handleUniverseInteraction(touch.clientX, touch.clientY, e.target as HTMLElement);
+        }, { passive: true });
+
+        // Click outside dismisses active asteroid glow (without closing modal)
         const handleDocClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             if (!target.closest('.skill-asteroid') && !target.closest('.spotlight-card')) {
-                if (isSpotlightOpen) {
-                    closeSpotlight();
-                } else if (activeAsteroid) {
+                if (activeAsteroid && !isSpotlightOpen) {
                     activeAsteroid.isActive = false;
                     activeAsteroid.el.classList.remove('active');
                     activeAsteroid = null;
